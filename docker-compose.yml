@@ -1,0 +1,53 @@
+name: diamondcrew-staffcenter
+x-common: &common
+  build: .
+  image: diamondcrew-staffcenter:local
+  restart: unless-stopped
+  init: true
+  read_only: true
+  tmpfs:
+    - /tmp:size=16m,mode=1777
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  expose:
+    - "3000"
+  networks:
+    - proxy
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+services:
+  staffcenter:
+    <<: *common
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_VARIANT: staff
+      DATA_MODE: ${DATA_MODE:-demo}
+      STAFF_USERNAME: ${STAFF_USERNAME:?Set STAFF_USERNAME in .env}
+      STAFF_PASSWORD: ${STAFF_PASSWORD:?Set a 20+ character STAFF_PASSWORD in .env}
+      PTERODACTYL_URL: ${PTERODACTYL_URL:-}
+      PTERODACTYL_CLIENT_API_KEY: ${PTERODACTYL_CLIENT_API_KEY:-}
+      PTERODACTYL_SERVERS: ${PTERODACTYL_SERVERS:-[]}
+  public-status:
+    <<: *common
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_VARIANT: public
+      DATA_MODE: ${DATA_MODE:-demo}
+      PTERODACTYL_URL: ${PTERODACTYL_URL:-}
+      PTERODACTYL_CLIENT_API_KEY: ${PTERODACTYL_CLIENT_API_KEY:-}
+      PTERODACTYL_SERVERS: ${PTERODACTYL_SERVERS:-[]}
+      PUBLIC_INCIDENT_TITLE: ${PUBLIC_INCIDENT_TITLE:-}
+      PUBLIC_INCIDENT_MESSAGE: ${PUBLIC_INCIDENT_MESSAGE:-}
+      PUBLIC_MAINTENANCE: ${PUBLIC_MAINTENANCE:-false}
+      PUBLIC_MAINTENANCE_MESSAGE: ${PUBLIC_MAINTENANCE_MESSAGE:-}
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-diamondcrew-proxy}
