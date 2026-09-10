@@ -112,12 +112,12 @@ Připojení nebylo ověřeno proti vašemu živému panelu, protože nebyly dod�
 
 Následující kroky jsou návod k pozdějšímu provedení; nejsou součástí provedeného nasazení. Požadavky: Docker Engine + Compose plugin, Nginx Proxy Manager na stejném Docker hostu, připravené DNS A/AAAA obou domén.
 
-1. Na DIA-01 použít účet s přístupem k privátnímu GitHub repozitáři (například read-only deploy key). Přihlášený administrátor připraví pracovní adresář a stáhne konkrétní tag:
+1. Repozitář je veřejný, proto lze konkrétní tag stáhnout přes HTTPS bez GitHub přihlašovacích údajů. Přihlášený administrátor na DIA-01 připraví pracovní adresář:
 
 ```bash
 sudo mkdir -p /opt/diamondcrew-staffcenter
 sudo chown "$(id -u):$(id -g)" /opt/diamondcrew-staffcenter
-git clone --branch v1.0.0 --single-branch git@github.com:DIamondCrew-Interactive/web-staff.git /opt/diamondcrew-staffcenter
+git clone --branch v1.0.0 --single-branch https://github.com/DIamondCrew-Interactive/web-staff.git /opt/diamondcrew-staffcenter
 cd /opt/diamondcrew-staffcenter
 git describe --tags --exact-match
 ```
