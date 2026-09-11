@@ -5,7 +5,7 @@ import {readStatus,httpStatus} from '../server/adapters.js';
 import {createMonitor} from '../server/monitoring.js';
 import {config} from '../server/config.js';
 import {createApp} from '../server/app.js';
-import {readWebTargets,publicWebServices} from '../server/web-status.js';
+import {readWebTargets} from '../server/web-status.js';
 import {launcherConfig} from '../server/launcher.js';
 
 test('launcher has only verified enabled destinations; Proxy is an explicit runtime switch',()=>{
@@ -26,14 +26,14 @@ test('unreachable web probes are OFFLINE, absent sources UNKNOWN, host does not 
  const transition=async()=>new Response(JSON.stringify({attributes:{current_state:'starting'}}));assert.equal((await readStatus({id:'minecraft',pterodactylId:'container'},c,transition)).state,'UNKNOWN');
  const targets=readWebTargets('[{"id":"controller-web","healthUrl":"https://private-admin.test/health"},{"id":"staff-web","healthUrl":"https://staff.test/health","maintenance":true}]');
  const result=await createMonitor(c,fail,targets)();assert.equal(result.servers.find(s=>s.id==='dia-01')?.state,'UNKNOWN');assert.equal(result.webServices.find(s=>s.id==='controller-web')?.state,'OFFLINE');assert.equal(result.webServices.find(s=>s.id==='staff-web')?.state,'MAINTENANCE');assert.equal(result.webServices.find(s=>s.id==='manager-web')?.state,'UNKNOWN');
- assert.equal(JSON.stringify(result).includes('private-admin'),false);assert.equal(JSON.stringify(publicWebServices(result.webServices)).includes('controller-web'),false);
+ assert.equal(JSON.stringify(result).includes('private-admin'),false);
  assert.throws(()=>readWebTargets('[{"id":"staff-web","healthUrl":"https://user:secret@private.test"}]'));assert.throws(()=>readWebTargets('[{"id":"unknown","healthUrl":"https://private.test"}]'));
 });
-test('public endpoint strips private probe identities and never returns upstream URLs, IDs or payloads',async()=>{
+test('public endpoint includes required service identities but never returns private upstream URLs, credentials or payloads',async()=>{
  const old=process.env.STATUS_WEB_TARGETS;process.env.STATUS_WEB_TARGETS='[{"id":"controller-web","healthUrl":"http://10.1.2.3/admin-private"},{"id":"image-web","healthUrl":"https://cdn-private.test/health"}]';
- let app;try{app=createApp('public',{...config,maintenance:false,targets:[]},async()=>new Response('PRIVATE_UPSTREAM_CONTAINER'));}finally{if(old===undefined)delete process.env.STATUS_WEB_TARGETS;else process.env.STATUS_WEB_TARGETS=old;}
+ let app;try{app=createApp('public',{...config,maintenance:false,targets:[],token:'PRIVATE_API_TOKEN',sessionSecret:'PRIVATE_SESSION_SECRET',pterodactylUrl:'https://private-panel.test'},async()=>new Response('PRIVATE_UPSTREAM_CONTAINER'));}finally{if(old===undefined)delete process.env.STATUS_WEB_TARGETS;else process.env.STATUS_WEB_TARGETS=old;}
  const server=app.listen(0,'127.0.0.1');await once(server,'listening');const base=`http://127.0.0.1:${(server.address() as {port:number}).port}`;
- try{const text=await(await fetch(base+'/api/public/status')).text();for(const privateValue of ['10.1.2.3','admin-private','cdn-private','PRIVATE_UPSTREAM_CONTAINER','controller-web','proxy-web','prismatic-dev-web','admin.diamondcrew.net'])assert.equal(text.includes(privateValue),false);
- const result=JSON.parse(text);assert.equal(result.webServices.find((s:any)=>s.id==='image-web').state,'ONLINE');assert.equal((await fetch(base+'/api/launcher')).status,404);
+ try{const text=await(await fetch(base+'/api/public/status')).text();for(const privateValue of ['10.1.2.3','admin-private','cdn-private','PRIVATE_UPSTREAM_CONTAINER','PRIVATE_API_TOKEN','PRIVATE_SESSION_SECRET','private-panel.test','admin.diamondcrew.net'])assert.equal(text.includes(privateValue),false);
+ const result=JSON.parse(text);for(const id of ['controller-web','proxy-web','prismatic-dev-web'])assert.ok(result.webServices.some((s:any)=>s.id===id));for(const id of ['dia-01','prismatic-dev','diamond-dev'])assert.ok(result.servers.some((s:any)=>s.id===id));assert.equal(result.servers.find((s:any)=>s.id==='dia-01').name,'DIA-01');assert.equal(result.webServices.find((s:any)=>s.id==='controller-web').name,'DiamondCrew Interactive Server Controller');assert.equal(result.webServices.find((s:any)=>s.id==='proxy-web').name,'DiamondCrew Interactive Proxy Manager');for(const s of [...result.servers,...result.webServices])for(const key of Object.keys(s))assert.ok(['id','name','state','players','responseMs','response'].includes(key));assert.equal(result.webServices.find((s:any)=>s.id==='image-web').state,'ONLINE');assert.equal((await fetch(base+'/api/launcher')).status,404);
  }finally{await new Promise<void>(r=>server.close(()=>r()));}
 });

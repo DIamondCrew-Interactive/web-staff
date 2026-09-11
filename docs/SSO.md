@@ -26,6 +26,12 @@ Use a different randomly generated >=32-byte secret for every service. An empty 
 
 Base Compose remains disabled and needs no key volume. The optional `docker-compose.sso.yml` mounts a pre-existing dedicated host credential directory read-only only into Staff. Set `SSO_CREDENTIAL_DIRECTORY` to its absolute host path, directory mode 0700 and files 0600/0400 with ownership matching container node UID 1000. Root-owned 0600 files cannot be read by that unprivileged container; materialize runtime copies for UID 1000 instead. The mount refuses automatic host directory creation. Private key is never copied into the image. Retain encrypted backups outside the repository. Reverse proxies must disable/redact SSO query strings and authorization headers in access/error logs; the application does not log tickets or assertions.
 
+## Existing production runtime
+
+Staff maintenance uses `/etc/diamondcrew-staffcenter/runtime.compose.json`, project `diamondcrew-staffcenter`, project directory `/opt/diamondcrew-staffcenter` and its existing `.env` context. Base Compose and optional overlays describe new installation; applying them over the resolved runtime removes live SSO configuration. Back up runtime bytes, inspect, old image IDs and commit; update only image IDs and preserve every environment value, credential mount and network. Resolved environment does not automatically follow `.env` edits. See README.md for the production runbook.
+
+Proxy uses `/etc/diamondcrew-interactive/npm-runtime.compose.json` with its existing project identity and directory; preserve its custom image, credential/data mounts and networks. Its tracked Compose still describes version 1.0. Controller maps to existing Unix UID 1001, distinct from container node UID 1000 and Proxy application user ID 1.
+
 ## Rotation
 
 Generate a new Ed25519 pair with a new kid. First distribute only the new public key alongside the old public key to each target. Set a documented absolute removal deadline for the old key, bounded to the rollout interval plus 45 seconds and the targets' explicit clock skew allowance. Then atomically replace Staff's private key and kid and restart the single Staff process (pending sign-ins restart). After the last old assertion can expire, remove the old public key at every target. Do not retain old keys indefinitely. Compromise requires immediate old-key rejection and target session revocation per target policy; expiry alone does not revoke already established target sessions.

@@ -12,6 +12,12 @@ tags: []
 ## Účel a použití
 Admin připravuje NPM s persistent daty a sdílenou proxy sítí. Na existujícím DIA-01 zachovej nginx-proxy-manager_app_1 a jeho skutečné mounts; tento vzor není příkaz je smazat.
 
+## Existující DIA produkce
+
+Tento instalační vzor se neaplikuje na běžící DIA NPM. Produkce používá `/etc/diamondcrew-interactive/npm-runtime.compose.json`; tracked Compose stále odpovídá 1.0 a může odstranit custom image a SSO mounty. Proxy Manager 1.1 prošel nasazením a restartem s explicitním mapováním aplikačního uživatele 1.
+
+Pro údržbu použij externí runtime s ověřeným existujícím project name, project directory a env-file kontextem. Zálohuj runtime, inspect, data a image; zachovej credential/data mounty a sítě. Image update připrav izolovaně, změň jen image referenci a ověř ostatní invarianty. Po recreate ověř routy a SSO; změna adresy NPM vyžaduje aktualizovat privátní Staff/Image trusted-proxy allowlist. [Runbook a rollback body](../11-staff-center/update.md).
+
 ## Prostředí a předpoklady
 NPM publikuje 80/443 a spravuje HTTPS. Local nginx nesmí kolidovat na hostovém 80. Admin81 není veřejná aplikační adresa. Ověř Docker, porty a současnou konfiguraci.
 

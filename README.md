@@ -2,7 +2,7 @@
 
 Veřejný rozcestník a status na `staff.diamondcrew.net`, Discord čtečka Cookbooku a samostatný `status.diamondcrew.net`. Bez Basic Auth, povinného hesla a fiktivních metrik. Repo: https://github.com/DIamondCrew-Interactive/web-staff.
 
-Integrační kandidát `1.3.0` sjednocuje central Staff SSO, Image SSO, launcher a sdílený status. [Poznámky k verzi](docs/RELEASE-1.3.0.md) rozlišují ověřené lokální testy od produkčního nasazení. Produkční Docker gate a vydání Staff1.3.0 jsou samostatný krok.
+Připravovaná verze `1.3.2` opravuje Image Docker build a produkční runbook. [Poznámky k verzi](docs/RELEASE-1.3.2.md).
 
 ## Nová homepage a Image Service
 
@@ -153,122 +153,33 @@ Browser test zahrnuje tři production buildy a typecheck. Backend testy simuluj�
 
 Secret scan před publikací: Gitleaks nad Git historií a nad exportem aktuálních verzovaných + neignorovaných nových souborů, včetně `docs/internal/`. Neignoruj nalezený secret jen proto, aby kontrola prošla. `.gitignore`/`.dockerignore` vylučují env, keys, dumps, `.artifacts` a lokální build výstupy.
 
-## Přesný update na DIA-01 — až po schválení
+## Produkční runtime a aktualizace
 
-Aktuální doplnění homepage/Image Service není na remote. Následující postup použij až po schváleném publikování konkrétního commitu; `v1.1.0` je předchozí Cookbook verze. Připrav samostatné servisní okno a ponech stávající NPM routy/sítě. Shell: Bash se sudo/docker právy.
+Produkční Staff používá `/etc/diamondcrew-staffcenter/runtime.compose.json`, projekt `diamondcrew-staffcenter`, pracovní adresář `/opt/diamondcrew-staffcenter` a jeho existující `.env` kontext. Tracked Compose je instalační vzor bez aktivního SSO a privátních mountů. Běžné up nad tímto vzorem by odstranilo živou konfiguraci. Runtime může obsahovat credentials: nevypisuj jej do veřejných logů ani Git.
 
-1. Zálohuj aktuální checkout, env a oba běžící image. Příkazy nic nevypisují ze secrets:
+~~~bash
+docker compose --project-directory /opt/diamondcrew-staffcenter --env-file /opt/diamondcrew-staffcenter/.env -p diamondcrew-staffcenter -f /etc/diamondcrew-staffcenter/runtime.compose.json config --quiet
+docker compose --project-directory /opt/diamondcrew-staffcenter --env-file /opt/diamondcrew-staffcenter/.env -p diamondcrew-staffcenter -f /etc/diamondcrew-staffcenter/runtime.compose.json ps
+~~~
 
-```bash
-set -eu
-cd /opt/diamondcrew-staffcenter
-test -z "$(git status --porcelain)" || { echo 'Nejprve uchovej lokální změny a zastav update.'; exit 1; }
-backup="/opt/diamondcrew-staffcenter-backups/$(date -u +%Y%m%dT%H%M%SZ)"
-install -d -m 700 "$backup"
-git rev-parse HEAD > "$backup/commit"
-git archive HEAD > "$backup/source.tar"
-cp -p .env "$backup/env"
-chmod 600 "$backup/env"
-cp docker-compose.yml "$backup/docker-compose.yml"
-for service in staffcenter public-status; do
-  container=$(docker compose ps -q "$service")
-  test -n "$container" || { echo "Chybí běžící $service; ověř stav ručně."; exit 1; }
-  image=$(docker inspect --format '{{.Image}}' "$container")
-  docker image tag "$image" "diamondcrew-staffcenter:rollback-$service"
-done
-printf '%s\n' "$backup"
-```
+Před aktualizací privátně zálohuj runtime JSON, inspect obou kontejnerů, Git SHA a export obou image. Ověř shodu běžících kontejnerů s runtime. Build připrav z izolovaného archivu přesného schváleného commitu; resolved runtime není build konfigurace. V kopii runtime změň pouze image ID obou služeb. Zachovej `.env`, credentials, mounty, sítě, aliasy, environment a resource/security nastavení. Neobnovuj JSON z tracked Compose. Změny `.env` se do resolved environment automaticky nepromítají; změnu konfigurace připrav a ověř samostatně v privátní kopii runtime.
 
-Poznamenej si vypsanou cestu. Pokud má stará instalace vlastní neversionované docs, zálohuj je samostatně a sluč jen bezpečný schválený obsah. Následující tagy rollback nepřepisuj dalším updatem, dokud tento není ověřen.
+Po ověření image a všech invariantů přepni checkout na toto SHA, atomicky aplikuj runtime a recreate proveď se stejným úplným Compose kontextem a `--no-build --pull never`. Ověř oba health endpointy, image ID, 328 Cookbook stránek ve 22 kategoriích, veřejné/auth hranice a zachování runtime nastavení. Při změně adresy NPM aktualizuj privátní `TRUST_PROXY_CIDRS`. Restart ruší Staff sessions a nevyzvednuté SSO tickety.
 
-2. Vyber přesný schválený commit a uprav env:
+Rollback používá zálohu konkrétního updatu: přesný původní runtime JSON, původní image a kompatibilní checkout. Neukládej rollback jako tracked Compose plus image override, ztratil by SSO mounty/env. Zachovej média a ostatní persistenci. Při cizí změně runtime nebo `.env` zastav automatické přepsání a proveď audit. Po rollbacku opakuj health a runtime kontroly.
 
-```bash
-git fetch origin --tags
-read -r -p 'Schválený nový commit SHA: ' approved_commit
-git cat-file -e "$approved_commit^{commit}"
-git checkout --detach "$approved_commit"
-nano .env
-chmod 600 .env
-# SESSION_SECRET: vygeneruj lokálně openssl rand -hex 32 a ulož pouze do .env.
-# Doplň Discord údaje a případné reálné STATUS_TARGETS.
-# Odstraň staré Basic Auth proměnné; PROXY_NETWORK=diamondcrew-proxy.
-docker network inspect diamondcrew-proxy >/dev/null 2>&1 || docker network create diamondcrew-proxy
-docker compose config --quiet
-docker compose build
-docker compose up -d --force-recreate
-docker compose ps
-```
+## Ověřený stav 11. září 2026
 
-Cookbook je nyní uvnitř image; nepřidávej původní docs bind mount. Prázdná OAuth konfigurace start neblokuje. Build provede kontrolu celé dokumentace. Kontejnery běží jako neprivilegovaný uživatel, s read-only FS, healthcheckem a bez publikovaného host portu.
+Staff produkce je 1.3.1 (`ea740d`); 1.3.2 je připravovaná zdrojová verze. Proxy Manager 1.1 prošel nasazením a restartem s explicitním mapováním aplikačního uživatele 1. Controller 1.2.1 je nasazen s mapováním existujícího Unix UID 1001. UID 1000 v Docker návodech patří uživateli node ve Staff/Image kontejnerech, nikoli Controller mapování.
 
-3. NPM musí být trvale připojen k external síti **`diamondcrew-proxy`**. V jeho Compose zachovej původní sítě a doplň:
+Proxy produkce používá `/etc/diamondcrew-interactive/npm-runtime.compose.json` s ověřeným existujícím project name, project directory a env-file kontextem. Tracked Proxy Compose stále odpovídá verzi 1.0. Při údržbě zachovej všechny credential/data mounty a sítě; neaplikuj instalační vzor ani obecný pull/up nad tracked Compose.
 
-```yaml
-services:
-  app: # ověř skutečný název NPM služby
-    networks:
-      - default
-      - diamondcrew
-networks:
-  diamondcrew:
-    external: true
-    name: diamondcrew-proxy
-```
+Image commit `cef7878` prošel izolovaným Linux Docker buildem a smoke testy health, syntetického veřejného PNG a odmítnutí anonymního management API. To není produkční CDN migrace ani ověření živého SSO. Původní CDN a `/uploads/` zůstávají zachovány; inventory staré služby není dokončeno. Herní `STATUS_TARGETS` zůstává prázdné bez Pterodactyl API credential a metriky UNKNOWN.
 
-Pokud již připojen je, nic neměň. Jinak aplikuj změnu z jeho vlastního Compose adresáře; nerecreateuj NPM naslepo z adresáře Staff Center.
+## Zaznamenané rollback body
 
-| Doména | Scheme | Forward hostname | Port |
-|---|---|---|---|
-| staff.diamondcrew.net | http | staffcenter | 3000 |
-| status.diamondcrew.net | http | public-status | 3000 |
+Cesty jsou provozní reference, nikoli obsah záloh. Před spuštěním ověř shodu živého stavu s helperem a backup manifestem. Pro nový update vytvoř novou zálohu; starý helper není určen pro jinou baseline.
 
-Zachovej TLS/Force SSL. Staff NPM Access List nastav veřejný a odstraň starou Basic Auth. Necachuj `/auth/*`, `/api/*`, `/ai/*`. Callback code ani cookies neposílej do analytik.
-
-4. Ověření:
-
-```bash
-docker compose exec -T staffcenter node -e "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1))"
-docker compose exec -T public-status node -e "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1))"
-curl -fsS -o /dev/null https://staff.diamondcrew.net/
-curl -fsS https://staff.diamondcrew.net/api/public/status
-curl -fsS https://status.diamondcrew.net/api/public/status
-curl -fsS -o /dev/null https://staff.diamondcrew.net/ai/cookbook.md
-curl -fsS -o /dev/null https://staff.diamondcrew.net/api/cookbook/bundle
-curl -s -o /dev/null -w '%{http_code}\n' https://staff.diamondcrew.net/api/internal/docs/index
-# očekáváno 401
-curl -s -o /dev/null -w '%{http_code}\n' https://status.diamondcrew.net/api/cookbook/index
-# očekáváno 404
-curl -s -o /dev/null -w '%{http_code}\n' -X POST https://staff.diamondcrew.net/api/cookbook/index
-# očekáváno 405
-```
-
-V prohlížeči ověř povolený/nepovolený Discord účet, logout, hledání/TOC/copy a mobile. UNKNOWN před doplněním monitoringu je správný stav. Změny allowlistu/env aplikuj `docker compose up -d --force-recreate staffcenter`; existující sessions tím skončí.
-
-## Přesný rollback
-
-Vrať původní zdroj, env i zachované image bez rebuildování. Žádná aplikační DB migrace zde není. Do proměnné `backup` vlož skutečnou dříve vypsanou cestu:
-
-```bash
-set -eu
-cd /opt/diamondcrew-staffcenter
-read -r -p 'Cesta k záloze tohoto updatu: ' backup
-test -f "$backup/commit"
-test -f "$backup/env"
-test -z "$(git status --porcelain)" || { echo 'Nejprve uchovej lokální změny.'; exit 1; }
-git checkout --detach "$(cat "$backup/commit")"
-cp -p "$backup/env" .env
-chmod 600 .env
-cat > "$backup/rollback.yml" <<'YAML'
-services:
-  staffcenter:
-    image: diamondcrew-staffcenter:rollback-staffcenter
-  public-status:
-    image: diamondcrew-staffcenter:rollback-public-status
-YAML
-docker compose -f docker-compose.yml -f "$backup/rollback.yml" config --quiet
-docker compose -f docker-compose.yml -f "$backup/rollback.yml" up -d --no-build --force-recreate
-docker compose ps
-```
-
-Starý koncept může znovu vyžadovat původní Basic Auth; vrácený `.env` ji musí obsahovat. Obnov podle potřeby původní NPM Access List. Síť `diamondcrew-proxy`, certifikáty a upstream jména zůstávají. Ověř oba weby a healthchecks; zachované rollback image nemaž před přijetím nové verze.
+- Staff backup `/var/backups/diamondcrew-interactive/staff-patches/20260911T183130336770Z` patří přechodu 1.3.0 → 1.3.1; jeho rollback vrací 1.3.0, nikoli připravovanou 1.3.2.
+- Proxy rollback: `python3 /var/tmp/dci-sso-rollouts-20260911/npm_sso_retry.py rollback --retry /var/backups/diamondcrew-interactive/npm-sso-retry/20260911T185327Z`. Původní 1.0 záloha: `/var/backups/diamondcrew-interactive/npm-sso/20260911T183408Z`.
+- Controller rollback: `python3 /var/tmp/dci-controller-rollout-121-20260911.py rollback --backup /var/backups/diamondcrew-interactive/controller/20260911T184614Z`. Předchozí verzi určuje backup manifest; tento postup netvrdí návrat na 1.2.2.

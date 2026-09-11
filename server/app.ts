@@ -1,7 +1,6 @@
 import express from 'express';
 import { configureTrustedProxy } from './trusted-proxy.js';
 import { mountLauncher } from './launcher.js';
-import { publicWebServices } from './web-status.js';
 import { config, type AppConfig } from './config.js';
 import { createMonitor } from './monitoring.js';
 import { createAuth } from './auth.js';
@@ -23,7 +22,7 @@ export function createApp(variant = config.variant, c: AppConfig = config, reque
   app.get('/api/public/status', async (_req, res) => {
     res.set('Cache-Control', 'no-store');
     const snapshot = await monitor();
-    res.json(variant === 'staff' ? snapshot : { ...snapshot, webServices: publicWebServices(snapshot.webServices), servers: snapshot.servers.filter(s => !s.id.endsWith('-dev')).map(s => ({ ...s, name: s.id === 'dia-01' ? 'Infrastructure' : s.name.replace(' PROD', ' Roleplay') })) });
+    res.json(snapshot);
   });
   if (variant === 'staff') {
     mountLauncher(app);
