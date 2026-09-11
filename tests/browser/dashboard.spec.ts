@@ -33,13 +33,37 @@ test('staff is public, simple, responsive and disabled tiles cannot launch', asy
 });
 
 test('pure status is public and has no tool grid or docs', async ({ page, request }) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   expect((await page.goto('http://127.0.0.1:4311'))?.status()).toBe(200);
   await expect(page.locator('.status-card')).toHaveCount(4);
   await expect(page.locator('.tile')).toHaveCount(0);
   expect((await request.get('http://127.0.0.1:4311/api/internal/docs')).status()).toBe(404);
+  await expect(page.locator('.summary-unknown strong')).toHaveText('4');
+  await expect(page.locator('.summary-online strong')).toHaveText('0');
+  await page.setViewportSize({ width: 1320, height: 1100 });
+  await page.screenshot({ path: '.artifacts/status-redesign-desktop.png', fullPage: true });
+  await page.getByRole('button', { name: 'Detail: Prismatic Roleplay' }).click();
+  await expect(page.locator('#detail-prismatic-prod')).toContainText('zatím není připojen zdroj');
+  await page.getByRole('button', { name: 'Detail: Prismatic Roleplay' }).click();
+  for (const width of [820, 390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
   await page.setViewportSize({ width: 390, height: 844 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path: '.artifacts/status-simple-mobile.png', fullPage: true });
+  await page.screenshot({ path: '.artifacts/status-redesign-mobile.png', fullPage: true });
+  const snapshot = await (await request.get('http://127.0.0.1:4311/api/public/status')).json();
+  snapshot.servers.forEach((s: any, i: number) => { s.state = ['ONLINE', 'OFFLINE', 'DEGRADED', 'MAINTENANCE'][i]; s.responseMs = i === 0 ? 24 : null; s.response = 'OK'; });
+  snapshot.incident = { title: 'Test incident', message: 'Fixture only' };
+  await page.route('**/api/public/status', route => route.fulfill({ json: snapshot }));
+  await page.getByRole('button', { name: 'Aktualizovat stav' }).click();
+  for (const state of ['online','offline','degraded','maintenance']) await expect(page.locator(`.summary-${state} strong`)).toHaveText('1');
+  await expect(page.locator('.summary-unknown strong')).toHaveText('0');
+  await expect(page.getByRole('heading', { name: 'Probíhá údržba' })).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText('Test incident');
+  await page.route('**/api/public/status', route => route.fulfill({ status: 503, body: '{}' }));
+  await page.getByRole('button', { name: 'Aktualizovat stav' }).click();
+  await expect(page.getByText('Aktualizace stavu není dostupná.', { exact: false })).toBeVisible();
+  expect(errors).toEqual([]);
 });
 
 test('OAuth configuration activates login and public maintenance remains visible', async ({ page, request }) => {
