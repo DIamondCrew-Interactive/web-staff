@@ -1,31 +1,23 @@
 ---
-title: "Reskin release selection"
+title: "Výběr verze vzhledu"
 category: 03-server-manager-installation
-categoryTitle: "Server Manager installation"
+categoryTitle: "Instalace Server Manageru"
 order: 23
 audience: ["admin","ai"]
 tags: ["reskin-release"]
 ---
 
-# Reskin release selection
+# Výběr verze vzhledu
 
-## Purpose
+## K čemu slouží
 
-Na GitHubu zkontroluj přesný release a jeho assets. Výsledek musí být ověřený před předáním do provozu.
+Na GitHubu zkontroluj přesný release a jeho assets.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 DiamondCrew Server Manager: Pterodactyl 1.15.1 v /var/www/pterodactyl; PHP 8.3, MariaDB panel, lokální Redis, pteroq.service.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Na GitHubu zkontroluj přesný release a jeho assets
 2. Vyber diamondcrew-server-manager-1.15.1.tar.gz a checksum
@@ -36,20 +28,10 @@ Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápis
 curl -fsSL https://api.github.com/repos/DIamondCrew-Interactive/web-servermanager/releases/latest | jq -r ' .tag_name, (.assets[] | .name)'
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Checksum sedí a cílová baseline odpovídá.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

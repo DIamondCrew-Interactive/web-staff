@@ -9,23 +9,15 @@ tags: ["pterodactyl0"]
 
 # pterodactyl0
 
-## Purpose
+## K čemu slouží
 
-Na současném DIA-01 je 172.19.0.0/16. Výsledek musí být ověřený před předáním do provozu.
+Na současném DIA-01 je 172.19.0.0/16.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Wings 1.13.3 na DIA-01: HTTP 0.0.0.0:8443 za NPM TLS, SFTP 2022, data /var/lib/pterodactyl/volumes.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Na současném DIA-01 je 172.19.0.0/16
 2. Na novém stroji to není univerzální hodnota
@@ -35,20 +27,10 @@ Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápis
 docker network inspect pterodactyl0
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Vybraný subnet se nepřekrývá s hostem, VPN ani ostatními bridge sítěmi.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

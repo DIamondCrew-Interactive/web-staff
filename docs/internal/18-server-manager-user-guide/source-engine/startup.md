@@ -1,50 +1,28 @@
 ---
-title: "Source startup command"
+title: "Spouštěcí příkaz Source serveru"
 category: 18-server-manager-user-guide
-categoryTitle: "Server Manager user guides"
+categoryTitle: "Používání Server Manageru"
 order: 80
 audience: ["user","admin","ai"]
 tags: ["source-engine","startup"]
 ---
 
-# Source startup command
+# Spouštěcí příkaz Source serveru
 
-## Purpose
+## K čemu slouží
 
-Použij executable a parametry ověřeného Eggu. Výsledek musí být ověřený před předáním do provozu.
+Použij executable a parametry ověřeného Eggu.
 
-## Audience
-
-Uživatel Server Manageru; krok označený Admin vyžaduje správce. Není potřeba znát Linux pro běžnou klientskou část.
-
-## Architecture
-
-Panel klient spravuje vlastní server; vytvoření serveru, nodu a Eggu je práce administrátora.
-
-## Prerequisites
-
-Vyber správný server a ověř svá oprávnění. U běžícího PROD domluv údržbu a připrav zálohu před změnou.
-
-## WHERE / WHAT / WHY
+## Kde a co nastavit
 
 1. Použij executable a parametry ověřeného Eggu
 2. Rozliš game directory, map, players a bind interface
 3. Nezaměň shell proměnnou s argumentem hry
 
-
-
-## Verification
+## Ověření výsledku
 
 Proces spustí správnou hru a mapu na přidělené allocation.
 
-## Update / rollback
-
-Před změnou ulož původní nastavení a vytvoř backup souvisejících dat. Pokud ověření selže, zastav nové zápisy a vrať poslední kompatibilní nastavení nebo ověřenou zálohu; obnovu přes živá data potvrzuje vlastník serveru.
-
-## Troubleshooting
-
-Chybějící položka UI obvykle znamená nedostatečné oprávnění nebo limit serveru. Předej správci název serveru, čas a redigovanou chybu. Neopakuj destruktivní operaci naslepo.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](../index.md)

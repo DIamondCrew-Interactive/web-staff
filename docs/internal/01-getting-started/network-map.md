@@ -1,31 +1,23 @@
 ---
-title: "Docker network map"
+title: "Přehled Docker sítí"
 category: 01-getting-started
-categoryTitle: "Getting started"
+categoryTitle: "Začínáme"
 order: 117
 audience: ["admin","ai"]
 tags: ["network-map"]
 ---
 
-# Docker network map
+# Přehled Docker sítí
 
-## Purpose
+## K čemu slouží
 
-DIA-01 default bridge: 172.17.0.0/16. Výsledek musí být ověřený před předáním do provozu.
+DIA-01 default bridge: 172.17.0.0/16.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Inventář, architektura a pravidla DiamondCrew.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. DIA-01 default bridge: 172.17.0.0/16
 2. nginx-proxy-manager_default: 172.18.0.0/16
@@ -38,20 +30,10 @@ docker network ls
 docker network inspect $(docker network ls -q) --format '{{.Name}} -> {{range .IPAM.Config}}{{.Subnet}}{{end}}'
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Na novém hostu vybereš nekolidující subnet místo slepého kopírování.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

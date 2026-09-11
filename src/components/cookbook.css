@@ -1,0 +1,93 @@
+.cookbook { margin-top: 28px; --reading-text: #ced8e8; }
+.cookbook .section-heading { margin-bottom: 24px; }
+.cookbook .section-heading h2 { font-size: clamp(26px, 3vw, 36px); font-weight: 700; gap: 14px; }
+.cookbook .section-heading .eyebrow { font-size: 12px; color: #aebed3; }
+.cookbook-shortcuts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+.cookbook-shortcuts button { display: flex; justify-content: space-between; align-items: center; gap: 12px; text-align: left; padding: 18px; background: #102638; border: 1px solid #28506a; border-radius: 10px; font-size: 15px; line-height: 1.5; }
+.cookbook-shortcuts button:nth-child(2) { background: #281b31; border-color: #583454; }
+.cookbook-shortcuts button:nth-child(n+3) { background: #2a251b; border-color: #615136; }
+.cookbook-shortcuts button:hover { filter: brightness(1.25); }
+.cookbook-search { padding: 13px 18px; border-color: #374b62; background: #111e2c; gap: 12px; }
+.cookbook-search input { font-size: 16px; min-height: 34px; }
+.cookbook-search select { font: inherit; font-size: 14px; padding: 12px; max-width: 100%; }
+.clear-search { background: none; border: 0; padding: 10px; }
+.cookbook .search-results button { padding: 20px; }
+.cookbook .search-results strong { font-size: 18px; }
+.cookbook .search-results small, .cookbook .search-results span, .cookbook .search-results > p { font-size: 14px; }
+.cookbook-layout { grid-template-columns: 290px minmax(0, 1fr) 190px; gap: 20px; background: none; border: 0; overflow: visible; }
+.cookbook-nav { background: none; padding: 0 6px 0 0; max-height: calc(100vh - 32px); scrollbar-width: thin; scrollbar-color: #455b74 transparent; }
+.nav-group { --nav-accent: #69d4ff; margin-bottom: 16px; border: 1px solid #2d4155; border-top: 3px solid var(--nav-accent); border-radius: 10px; background: #101c29; padding: 10px; }
+.nav-pink { --nav-accent: #ee84cb; }
+.nav-gold { --nav-accent: #f0cd73; }
+.nav-purple { --nav-accent: #baabff; }
+.nav-group > h3 { font-size: 13px; letter-spacing: .4px; color: var(--nav-accent); margin: 5px 8px 12px; }
+.category-toggle { font-size: 15px; padding: 12px 7px; color: #d0daea; gap: 8px; border-radius: 6px; }
+.category-toggle span { flex: 1; }
+.category-toggle small { font-size: 12px; color: #afbdd0; }
+.category-toggle:hover, .category-toggle[aria-expanded=true] { background: #213144; color: white; }
+.category-pages { margin: 9px 0 14px 12px; border-color: var(--nav-accent); padding-left: 8px; }
+.category-subgroup { min-width: 0; }
+.category-subgroup h4 { font-size: 13px; color: var(--nav-accent); margin: 17px 9px 6px; }
+.category-pages button { display: block; width: 100%; padding: 10px; font-size: 14px; color: #b7c7dc; line-height: 1.5; margin: 3px 0; }
+.category-pages button[aria-current] { background: #183c53; color: #b9ecff; border-color: #3e799b; font-weight: 650; }
+.cookbook-document { border: 1px solid #2d4155; border-radius: 12px; background: #101925; overflow: hidden; }
+.cookbook-breadcrumb { font-size: 13px; line-height: 1.6; padding: 18px 26px; color: #acbdd4; background: #142131; }
+.cookbook .markdown { font-size: 17px; line-height: 1.85; padding: 30px; color: var(--reading-text); }
+.cookbook .markdown h1 { font-size: clamp(26px, 2.2vw, 34px); line-height: 1.3; margin: 0 0 28px; }
+.cookbook .markdown h2 { font-size: 22px; line-height: 1.4; margin: 0 0 16px; color: #f0f5fc; }
+.cookbook .markdown h3 { font-size: 18px; color: #e8effa; margin: 26px 0 8px; border-top: 1px solid #33465c; padding-top: 18px; }
+.guide-section { --section-accent: #849bb9; background: #162231; border: 1px solid #2e4156; border-left: 4px solid var(--section-accent); border-radius: 9px; padding: 22px; margin: 20px 0; }
+.guide-action { --section-accent: #52ceff; background: #112735; }
+.guide-success { --section-accent: #68d5ad; background: #132a29; }
+.guide-warning { --section-accent: #f3d36b; background: #29261e; }
+.guide-section > :last-child { margin-bottom: 0; }
+.cookbook .markdown ol { padding-left: 30px; }
+.cookbook .markdown li { padding-left: 5px; margin: 12px 0; }
+.cookbook .markdown ol > li::marker { color: #78daff; font-weight: 750; }
+.cookbook .markdown blockquote { border-color: #f3d36b; padding: 12px 18px; border-radius: 6px; }
+.cookbook .markdown table { font-size: 15px; line-height: 1.6; }
+.cookbook .markdown td, .cookbook .markdown th { padding: 12px; }
+.cookbook .markdown pre { font-size: 14px; padding: 52px 18px 18px; line-height: 1.8; }
+.cookbook .code-block { margin: 20px 0; background: #0c111a; }
+.cookbook .copy-code { font-size: 12px; padding: 8px 11px; top: 8px; right: 8px; }
+.cookbook .page-pagination { padding: 24px; background: #142131; }
+.cookbook .page-pagination button { font-size: 14px; }
+.cookbook .page-pagination small { font-size: 12px; color: #a8b7cc; }
+.cookbook-toc { background: #101c29; border: 1px solid #2d4155; border-radius: 10px; padding: 18px; gap: 0; }
+.cookbook-toc .eyebrow { font-size: 11px; color: #d2ddea; margin-bottom: 12px; }
+.cookbook-toc a { font-size: 14px; color: #b4c4da; padding: 10px 0; border-top: 1px solid #273a4d; }
+@media (max-width: 1250px) {
+  .cookbook-layout { grid-template-columns: 265px minmax(0, 1fr); }
+  .cookbook-toc { display: flex; position: static; grid-column: 2; grid-row: 1; flex-direction: row; flex-wrap: wrap; gap: 4px 18px; max-height: none; }
+  .cookbook-toc .eyebrow { width: 100%; margin: 0; }
+  .cookbook-toc a { border: 0; padding: 6px 0; }
+  .cookbook-nav { grid-column: 1; grid-row: 1 / span 2; }
+  .cookbook-document { grid-column: 2; grid-row: 2; }
+  .cookbook .markdown { padding: 24px; }
+}
+@media (max-width: 850px) {
+  .cookbook-shortcuts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cookbook-layout { display: flex; flex-direction: column; gap: 14px; }
+  .cookbook-nav { display: none; position: static; width: 100%; }
+  .cookbook-nav.mobile-open { display: block; max-height: 65vh; }
+  .cookbook-mobile-toggle { display: flex; font-size: 15px; padding: 14px 18px; }
+  .cookbook-document, .cookbook-toc { width: 100%; }
+  .cookbook-toc { order: -1; }
+  .cookbook-nav.mobile-open { order: -2; }
+}
+@media (max-width: 540px) {
+  .cookbook { margin-top: 20px; }
+  .cookbook-shortcuts { gap: 8px; }
+  .cookbook-shortcuts button { font-size: 14px; padding: 13px; gap: 6px; }
+  .cookbook-search { flex-wrap: wrap; padding: 10px; gap: 4px; }
+  .cookbook-search input { font-size: 16px; }
+  .cookbook-search select { width: 100%; margin-top: 8px; }
+  .cookbook .markdown { font-size: 16px; padding: 18px 12px; }
+  .cookbook .markdown h1 { font-size: 26px; padding: 0 4px; }
+  .cookbook .markdown h2 { font-size: 21px; }
+  .guide-section { padding: 17px 13px; }
+  .cookbook-breadcrumb { padding: 14px; }
+  .cookbook .page-pagination { padding: 16px 12px; gap: 12px; }
+  .cookbook .page-pagination button { font-size: 13px; }
+  .cookbook .markdown pre { font-size: 13px; }
+}

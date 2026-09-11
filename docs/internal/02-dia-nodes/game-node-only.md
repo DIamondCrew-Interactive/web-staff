@@ -1,25 +1,25 @@
 ---
-title: "New DIA node: game node only"
+title: "Nový DIA node: pouze herní servery"
 category: 02-dia-nodes
-categoryTitle: "DIA nodes"
+categoryTitle: "Servery DIA"
 order: 265
 audience: ["admin","ai"]
 tags: []
 ---
 
-# New DIA node: game node only
+# Nový DIA node: pouze herní servery
 
-## Purpose / Audience
+## Účel a použití
 Administrátor připravuje nový stroj bez kopírování aktivní identity původního nodu. Panel zůstává na existující control plane.
 
-## Architecture
+## Kde a jak běží
 DiamondCrew naming DIA-XX je logický název; hostname zvol jednoznačně, stávající DIA-01 používá dc-node01. FQDN, veřejná IP a konečné subnety nového stroje jsou `<configure-for-target-environment>`.
 
-## Prerequisites / Backup
+## Předpoklady a záloha
 Recovery konzole, sudo, schválené DNS, kapacita a dostupné offsite zálohy. Pokud nahrazuješ produkci, uchovej předchozí host a neprováděj souběžné zápisy stejné herní instance.
 
-## Installation
-1. Nainstaluj Debian12; ověř OS, architekturu a disky. Použij [Debian baseline](debian.md).
+## Instalace
+1. Nainstaluj Debian12; ověř OS, architekturu a disky. Použij [Základní nastavení Debianu](debian.md).
 2. Vytvoř osobní sudo/SSH účet a otestuj druhou session před zpřísněním sshd: [SSH/sudo](ssh-sudo.md).
 3. Proveď [konkrétní Docker install](../14-docker/install.md), ověř Engine a Compose.
 4. Zmapuj hostové i Docker sítě. Vyber volný subnet; nekopíruj slepě 172.19.0.0/16. Nastav [firewall](firewall.md) se zachováním managementu.
@@ -29,7 +29,7 @@ Recovery konzole, sudo, schválené DNS, kapacita a dostupné offsite zálohy. P
 9. Do schváleného status systému přidej skutečné targety bez vystavení privátních adres.
 10. Nastav zálohy mimo host a [restore test](../15-backups/restore-test.md). Teprve po ověření přesuň produkční hry/směrování.
 
-## Verification
+## Ověření výsledku
 ~~~bash
 hostnamectl
 docker version
@@ -40,5 +40,5 @@ ss -lunp
 ~~~
 Vyžaduj úspěšné skutečné herní připojení a test persistence, ne jen zelenou ikonu nodu.
 
-## Update / Rollback / Troubleshooting
+## Aktualizace, rollback a řešení problémů
 Aktualizuj vrstvy odděleně v servisním okně. Při selhání vrať směrování na původní ověřený host a kompatibilní data; nedovol dvě PROD kopie. Při nejasném identity/subnet konfliktu zastav migraci a nejprve inspectuj. [Recovery](../21-disaster-recovery/dia-01-lost.md).

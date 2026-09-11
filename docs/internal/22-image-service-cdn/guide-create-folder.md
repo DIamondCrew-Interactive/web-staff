@@ -14,4 +14,4 @@ Povolený Discord účet pro /manage. Obrázky jsou veřejné; žádné citlivé
 ## Postup
 Klikni Nová složka. Zadej kostka a Uložit. V seznamu vyber kostka, klikni Otevřít složku. Breadcrumb musí ukazovat Media / kostka. Existující složka se nevymaže.
 ## Ověření a řešení potíží
-Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](folders.md), [Troubleshooting](troubleshooting.md).
+Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](folders.md), [Řešení problémů](troubleshooting.md).

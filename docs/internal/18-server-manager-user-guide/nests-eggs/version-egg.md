@@ -1,50 +1,28 @@
 ---
-title: "Version an Egg"
+title: "Verzování Eggu"
 category: 18-server-manager-user-guide
-categoryTitle: "Server Manager user guides"
+categoryTitle: "Používání Server Manageru"
 order: 100
 audience: ["user","admin","ai"]
 tags: ["nests-eggs","version-egg"]
 ---
 
-# Version an Egg
+# Verzování Eggu
 
-## Purpose
+## K čemu slouží
 
-Ulož secret-free JSON do schváleného repozitáře. Výsledek musí být ověřený před předáním do provozu.
+Ulož secret-free JSON do schváleného repozitáře.
 
-## Audience
-
-Uživatel Server Manageru; krok označený Admin vyžaduje správce. Není potřeba znát Linux pro běžnou klientskou část.
-
-## Architecture
-
-Panel klient spravuje vlastní server; vytvoření serveru, nodu a Eggu je práce administrátora.
-
-## Prerequisites
-
-Vyber správný server a ověř svá oprávnění. U běžícího PROD domluv údržbu a připrav zálohu před změnou.
-
-## WHERE / WHAT / WHY
+## Kde a co nastavit
 
 1. Ulož secret-free JSON do schváleného repozitáře
 2. Přidej datum, cílovou hru/verzi a test matrix
 3. Release označuje konkrétní ověřený commit
 
-
-
-## Verification
+## Ověření výsledku
 
 Lze určit přesnou verzi, která vytvořila server, a vrátit předchozí.
 
-## Update / rollback
-
-Před změnou ulož původní nastavení a vytvoř backup souvisejících dat. Pokud ověření selže, zastav nové zápisy a vrať poslední kompatibilní nastavení nebo ověřenou zálohu; obnovu přes živá data potvrzuje vlastník serveru.
-
-## Troubleshooting
-
-Chybějící položka UI obvykle znamená nedostatečné oprávnění nebo limit serveru. Předej správci název serveru, čas a redigovanou chybu. Neopakuj destruktivní operaci naslepo.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](../index.md)

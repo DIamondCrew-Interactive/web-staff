@@ -1,31 +1,23 @@
 ---
-title: "First administrator"
+title: "První administrátor"
 category: 03-server-manager-installation
-categoryTitle: "Server Manager installation"
+categoryTitle: "Instalace Server Manageru"
 order: 17
 audience: ["admin","ai"]
 tags: ["first-admin"]
 ---
 
-# First administrator
+# První administrátor
 
-## Purpose
+## K čemu slouží
 
-Na nové instalaci spusť p:user:make. Výsledek musí být ověřený před předáním do provozu.
+Na nové instalaci spusť p:user:make.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 DiamondCrew Server Manager: Pterodactyl 1.15.1 v /var/www/pterodactyl; PHP 8.3, MariaDB panel, lokální Redis, pteroq.service.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Na nové instalaci spusť p:user:make
 2. Odpověz na interaktivní dotazy pro správce
@@ -37,20 +29,10 @@ cd /var/www/pterodactyl
 php artisan p:user:make
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Účet otevře administraci; nepoužívej ho pro běžné delegované hraní.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

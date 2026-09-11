@@ -1,27 +1,24 @@
 ---
-title: "Monitoring & operations"
+title: "Monitoring a provoz"
 category: 16-monitoring-operations
-categoryTitle: "Monitoring & operations"
+categoryTitle: "Monitoring a provoz"
 order: 0
 audience: ["admin","ai"]
 tags: ["index","16-monitoring-operations"]
 ---
 
-# Monitoring & operations
+# Monitoring a provoz
 
-## Purpose
+## K čemu slouží
 Pouze měřené stavy; UNKNOWN není OFFLINE. Provozní změny mají backup a ověření.
 
-## How to use this category
-Vyber konkrétní úkol níže. Před změnou ověř cílovou verzi a současný stav; před zápisem připrav backup a po změně funkční test.
+## Návody v této kategorii
+- [Význam stavů služeb](status-sources.md)
+- [Postup údržby](maintenance.md)
+- [Ověření po změně](verification.md)
 
-## Pages
-- [Status source semantics](status-sources.md)
-- [Maintenance procedure](maintenance.md)
-- [Post-change verification](verification.md)
-
-## Safety and scope
+## Rozsah a zabezpečení
 Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials. DiamondCrew porty a adresy jsou konvence a inventář dodaný provozovatelem, ne obecné požadavky softwaru ani živé metriky.
 
-## Related pages
+## Související návody
 [Architecture](../01-getting-started/architecture.md)

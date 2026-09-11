@@ -1,31 +1,23 @@
 ---
-title: "GitHub repositories and versions"
+title: "GitHub repozitáře a verze"
 category: 01-getting-started
-categoryTitle: "Getting started"
+categoryTitle: "Začínáme"
 order: 118
 audience: ["admin","ai"]
 tags: ["repositories"]
 ---
 
-# GitHub repositories and versions
+# GitHub repozitáře a verze
 
-## Purpose
+## K čemu slouží
 
-web-servermanager je DiamondCrew reskin. Výsledek musí být ověřený před předáním do provozu.
+web-servermanager je DiamondCrew reskin.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Inventář, architektura a pravidla DiamondCrew.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. web-servermanager je DiamondCrew reskin
 2. fivem-txadmindc je custom monitor
@@ -34,18 +26,10 @@ Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápis
 
 Repozitáře: https://github.com/DIamondCrew-Interactive/web-servermanager · https://github.com/DIamondCrew-Interactive/fivem-txadmindc · https://github.com/DIamondCrew-Interactive/web-staff
 
-## Verification
+## Ověření výsledku
 
 Pro zásah máš konkrétní commit/tag a release asset.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

@@ -1,50 +1,32 @@
 ---
-title: "Incident and maintenance"
+title: "Incidenty a údržba"
 category: 12-public-status
-categoryTitle: "Public Status"
+categoryTitle: "Veřejný status"
 order: 187
 audience: ["admin","ai"]
 tags: ["incidents"]
 ---
 
-# Incident and maintenance
+# Incidenty a údržba
 
-## Purpose
+## K čemu slouží
 
-Veřejné env oznámení má popsat dopad bez secrets. Výsledek musí být ověřený před předáním do provozu.
+Veřejné env oznámení má popsat dopad bez secrets.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Samostatný veřejný proces public-status:3000; žádné admin dlaždice ani Cookbook routy.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Veřejné env oznámení má popsat dopad bez secrets
 2. Globální nebo target maintenance označí údržbu
 3. Po ukončení vrať flag a ověř skutečné probes
 
-
-
-## Verification
+## Ověření výsledku
 
 Banner odpovídá reálnému incidentu; nezveřejňuje interní IP.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

@@ -1,50 +1,32 @@
 ---
-title: "Required offsite recovery material"
+title: "Podklady pro obnovu mimo server"
 category: 21-disaster-recovery
-categoryTitle: "Disaster recovery"
+categoryTitle: "Obnova po havárii"
 order: 213
 audience: ["admin","ai"]
 tags: ["required-backups"]
 ---
 
-# Required offsite recovery material
+# Podklady pro obnovu mimo server
 
-## Purpose
+## K čemu slouží
 
-Připrav DB dumps, volumes, verze aplikací a chráněné konfigurace. Výsledek musí být ověřený před předáním do provozu.
+Připrav DB dumps, volumes, verze aplikací a chráněné konfigurace.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 DIA-01 LOST: čistý host, konzistentní offsite zálohy, ověřené verze a řízené přepnutí DNS.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Připrav DB dumps, volumes, verze aplikací a chráněné konfigurace
 2. Odděleně uchovej APP_KEY, DB credentials, Wings identitu, Discord secrets, license keys a cert keys
 3. Klíč k backupu musí být dostupný i bez DIA-01
 
-
-
-## Verification
+## Ověření výsledku
 
 Žádná nezbytná část obnovy není pouze na ztraceném serveru.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

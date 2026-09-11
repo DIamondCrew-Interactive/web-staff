@@ -1,27 +1,24 @@
 ---
-title: "Disaster recovery"
+title: "Obnova po havárii"
 category: 21-disaster-recovery
-categoryTitle: "Disaster recovery"
+categoryTitle: "Obnova po havárii"
 order: 0
 audience: ["admin","ai"]
 tags: ["index","21-disaster-recovery"]
 ---
 
-# Disaster recovery
+# Obnova po havárii
 
-## Purpose
+## K čemu slouží
 DIA-01 LOST: čistý host, konzistentní offsite zálohy, ověřené verze a řízené přepnutí DNS.
 
-## How to use this category
-Vyber konkrétní úkol níže. Před změnou ověř cílovou verzi a současný stav; před zápisem připrav backup a po změně funkční test.
+## Návody v této kategorii
+- [Podklady pro obnovu mimo server](required-backups.md)
+- [Ověření dokončené obnovy](final-checklist.md)
+- [Ztráta DIA-01: obnova na čistém serveru](dia-01-lost.md)
 
-## Pages
-- [Required offsite recovery material](required-backups.md)
-- [Recovery acceptance](final-checklist.md)
-- [DIA-01 LOST: clean-server recovery](dia-01-lost.md)
-
-## Safety and scope
+## Rozsah a zabezpečení
 Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials. DiamondCrew porty a adresy jsou konvence a inventář dodaný provozovatelem, ne obecné požadavky softwaru ani živé metriky.
 
-## Related pages
+## Související návody
 [Architecture](../01-getting-started/architecture.md)

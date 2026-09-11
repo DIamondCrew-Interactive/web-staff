@@ -1,21 +1,21 @@
 ---
-title: "MariaDB down"
+title: "MariaDB neběží"
 category: 20-troubleshooting
-categoryTitle: "Troubleshooting"
+categoryTitle: "Řešení problémů"
 order: 232
 audience: ["admin","ai"]
 tags: ["database-down","troubleshooting","diagnostics"]
 ---
 
-# MariaDB down
+# MariaDB neběží
 
-## Symptoms
+## Příznaky
 Panel/game DB requests fail.
 
-## Likely Causes
+## Pravděpodobné příčiny
 Service failure, disk, corrupted state, bad config.
 
-## Diagnostics
+## Diagnostika
 Před změnou potvrď správný host/server a čas události. Příkazy jsou read-only, pokud není uvedeno jinak; logy před sdílením rediguj.
 
 ~~~bash
@@ -23,18 +23,18 @@ systemctl status mariadb --no-pager
 df -h
 ~~~
 
-## Fix
+## Oprava
 Nejdřív řeš disk/config/log příčinu. Před recovery dat zachovej kopii a použij ověřený restore, ne náhodné mazání DB souborů.
 
-## Backup / Rollback
+## Záloha a rollback
 Uchovej související konfiguraci a konzistentní data před opravou. Pokud zásah selže, vrať pouze změněnou část z ověřené zálohy; při schema změně vrať kompatibilní aplikaci i DB. Nezaměň návrat DNS s obnovou dat.
 
-## Verification
+## Ověření výsledku
 mariadb-admin ping a aplikace. Test musí reprodukovat původně selhávající operaci a potvrdit zachování dat.
 
-## Prevention
+## Prevence
 Restore drills a capacity monitoring. Zaznamenej skutečnou příčinu a výsledek testu, ne jen provedený restart.
 
-## Related pages
+## Související návody
 [Infrastructure overview](../01-getting-started/architecture.md)
-[Disaster recovery](../21-disaster-recovery/dia-01-lost.md)
+[Obnova po havárii](../21-disaster-recovery/dia-01-lost.md)

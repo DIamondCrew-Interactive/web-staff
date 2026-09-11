@@ -1,31 +1,23 @@
 ---
-title: "Panel database"
+title: "Databáze panelu"
 category: 03-server-manager-installation
-categoryTitle: "Server Manager installation"
+categoryTitle: "Instalace Server Manageru"
 order: 6
 audience: ["admin","ai"]
 tags: ["database"]
 ---
 
-# Panel database
+# Databáze panelu
 
-## Purpose
+## K čemu slouží
 
-Vytvoř samostatnou databázi panel a aplikačního uživatele. Výsledek musí být ověřený před předáním do provozu.
+Vytvoř samostatnou databázi panel a aplikačního uživatele.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 DiamondCrew Server Manager: Pterodactyl 1.15.1 v /var/www/pterodactyl; PHP 8.3, MariaDB panel, lokální Redis, pteroq.service.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Vytvoř samostatnou databázi panel a aplikačního uživatele
 2. Oprávnění omez na panel.* a skutečný source host
@@ -37,18 +29,10 @@ sudo mariadb
 
 SQL šablona ve Fresh install používá placeholder, který před provedením nahraď bezpečně.
 
-## Verification
+## Ověření výsledku
 
 Panel provede DB spojení a migrations; nevypisuj heslo.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

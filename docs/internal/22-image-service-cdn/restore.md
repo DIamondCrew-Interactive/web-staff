@@ -1,5 +1,5 @@
 ---
-title: "Restore media to an isolated volume"
+title: "Obnova obrázků do odděleného volume"
 category: 22-image-service-cdn
 categoryTitle: "Image Service / CDN"
 order: 22
@@ -7,11 +7,11 @@ audience: [user, admin, ai]
 tags: [images, cdn, media]
 ---
 
-# Restore media to an isolated volume
+# Obnova obrázků do odděleného volume
 
-## Preconditions
+## Předpoklady
 Schválená záloha, checksum, známý cílový Compose projekt a maintenance window. Neobnovuj přes živý volume. Uchovej současný stav pro návrat. Nejprve ověř hash archivu a tar listing: žádné absolutní cesty, '..', devices či symlinky.
-## Procedure
+## Postup
 1. Připrav nový named volume s jednoznačným jménem a dočasný Compose override volumes.media.name na tento volume. Původní volume nemazat.
 2. Zastav image-service. Přes stejnou image spusť jednorázový tar helper nad NOVÝM volume, stdin z ověřeného archivu. Příklad příkazu se skutečným override souborem restore.override.yml:
 ~~~bash

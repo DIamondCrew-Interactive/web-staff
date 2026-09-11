@@ -1,31 +1,23 @@
 ---
-title: "Admin allocations"
+title: "Správa portů (Allocations)"
 category: 03-server-manager-installation
-categoryTitle: "Server Manager installation"
+categoryTitle: "Instalace Server Manageru"
 order: 20
 audience: ["admin","ai"]
 tags: ["allocations"]
 ---
 
-# Admin allocations
+# Správa portů (Allocations)
 
-## Purpose
+## K čemu slouží
 
-Admin. Výsledek musí být ověřený před předáním do provozu.
+Admin.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 DiamondCrew Server Manager: Pterodactyl 1.15.1 v /var/www/pterodactyl; PHP 8.3, MariaDB panel, lokální Redis, pteroq.service.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Admin
 2. Nodes
@@ -39,20 +31,10 @@ ss -ltnp
 ss -lunp
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Port nemá jiného vlastníka a je dosažitelný správným protokolem.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

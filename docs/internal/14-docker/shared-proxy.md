@@ -1,31 +1,23 @@
 ---
-title: "Shared proxy network"
+title: "Sdílená síť pro proxy"
 category: 14-docker
-categoryTitle: "Docker & networking"
+categoryTitle: "Docker a sítě"
 order: 194
 audience: ["admin","ai"]
 tags: ["shared-proxy"]
 ---
 
-# Shared proxy network
+# Sdílená síť pro proxy
 
-## Purpose
+## K čemu slouží
 
-External diamondcrew-proxy sdílejí NPM a weby. Výsledek musí být ověřený před předáním do provozu.
+External diamondcrew-proxy sdílejí NPM a weby.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Docker host, bridge sítě, pterodactyl0 a external diamondcrew-proxy mají různé úlohy.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. External diamondcrew-proxy sdílejí NPM a weby
 2. V Compose aplikace není třeba hostový port
@@ -35,20 +27,10 @@ Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápis
 docker network inspect diamondcrew-proxy
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Po recreate obou služeb routing dál funguje.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

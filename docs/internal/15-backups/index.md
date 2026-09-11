@@ -1,34 +1,31 @@
 ---
-title: "Backups & restore"
+title: "Zálohování a obnova"
 category: 15-backups
-categoryTitle: "Backups & restore"
+categoryTitle: "Zálohování a obnova"
 order: 0
 audience: ["admin","ai"]
 tags: ["index","15-backups"]
 ---
 
-# Backups & restore
+# Zálohování a obnova
 
-## Purpose
+## K čemu slouží
 Konzistentní data, konfigurace a oddělený šifrovaný secret backup mimo primární stroj.
 
-## How to use this category
-Vyber konkrétní úkol níže. Před změnou ověř cílovou verzi a současný stav; před zápisem připrav backup a po změně funkční test.
+## Návody v této kategorii
+- [Co zálohovat](what-to-backup.md)
+- [Záloha Server Manageru](server-manager.md)
+- [Záloha databáze](database.md)
+- [Záloha Pterodactyl volumes](pterodactyl-volumes.md)
+- [Záloha Wings](wings.md)
+- [Záloha NPM](npm.md)
+- [Záloha Staff Centeru a Cookbooku](staff.md)
+- [Uchovávání záloh mimo server](offsite.md)
+- [Test obnovy](restore-test.md)
+- [Obnova celého stacku](full-restore.md)
 
-## Pages
-- [Backup scope](what-to-backup.md)
-- [Server Manager backup](server-manager.md)
-- [Database backup](database.md)
-- [Pterodactyl volumes backup](pterodactyl-volumes.md)
-- [Wings backup](wings.md)
-- [NPM backup](npm.md)
-- [Staff and Cookbook backup](staff.md)
-- [Offsite retention](offsite.md)
-- [Restore testing](restore-test.md)
-- [Full stack restore](full-restore.md)
-
-## Safety and scope
+## Rozsah a zabezpečení
 Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials. DiamondCrew porty a adresy jsou konvence a inventář dodaný provozovatelem, ne obecné požadavky softwaru ani živé metriky.
 
-## Related pages
+## Související návody
 [Architecture](../01-getting-started/architecture.md)

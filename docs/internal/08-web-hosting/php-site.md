@@ -1,51 +1,33 @@
 ---
-title: "PHP site"
+title: "Web v PHP"
 category: 08-web-hosting
-categoryTitle: "Web hosting"
+categoryTitle: "Hostování webů"
 order: 160
 audience: ["admin","ai"]
 tags: ["php-site"]
 ---
 
-# PHP site
+# Web v PHP
 
-## Purpose
+## K čemu slouží
 
-Ověř PHP verzi aplikace a FPM socket. Výsledek musí být ověřený před předáním do provozu.
+Ověř PHP verzi aplikace a FPM socket.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Statické soubory s nginx, lokální aplikace nebo Docker aplikace za NPM.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Ověř PHP verzi aplikace a FPM socket
 2. Publikuj jen její public root
 3. PHP zdroj musí vykonávat FPM, nikdy se nesmí stáhnout jako text
 4. Chraň konfigurační dotfiles
 
-
-
-## Verification
+## Ověření výsledku
 
 PHP test vrací výsledek, ne zdroj; dočasný testovací soubor po ověření odeber.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

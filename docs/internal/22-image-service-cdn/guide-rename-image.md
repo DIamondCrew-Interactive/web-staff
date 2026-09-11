@@ -14,4 +14,4 @@ Povolený Discord účet pro /manage. Obrázky jsou veřejné; žádné citlivé
 ## Postup
 Vyber 1.png → Přejmenovat → burger.png → Uložit. Přípona musí zachovat typ; přejmenování není konverze. Existující destination způsobí409. Ověř náhled a zkopíruj novou public URL.
 ## Ověření a řešení potíží
-Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](rename-move.md), [Troubleshooting](troubleshooting.md).
+Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](rename-move.md), [Řešení problémů](troubleshooting.md).

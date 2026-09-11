@@ -1,5 +1,5 @@
 ---
-title: "Wings reverse proxy"
+title: "Reverse proxy pro Wings"
 category: 04-wings
 categoryTitle: "Wings"
 order: 37
@@ -7,25 +7,17 @@ audience: ["admin","ai"]
 tags: ["reverse-proxy"]
 ---
 
-# Wings reverse proxy
+# Reverse proxy pro Wings
 
-## Purpose
+## K čemu slouží
 
-NPM dia-01.diamondcrew.net směřuje HTTP na dosažitelnou hostovou adresu :8443. Výsledek musí být ověřený před předáním do provozu.
+NPM dia-01.diamondcrew.net směřuje HTTP na dosažitelnou hostovou adresu :8443.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Wings 1.13.3 na DIA-01: HTTP 0.0.0.0:8443 za NPM TLS, SFTP 2022, data /var/lib/pterodactyl/volumes.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. NPM dia-01.diamondcrew.net směřuje HTTP na dosažitelnou hostovou adresu :8443
 2. Zapni WebSockets a TLS certifikát
@@ -35,20 +27,10 @@ Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápis
 curl -I https://dia-01.diamondcrew.net
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Konzole i soubory fungují; 401 na chráněné API pro anonymous není samo o sobě výpadek.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

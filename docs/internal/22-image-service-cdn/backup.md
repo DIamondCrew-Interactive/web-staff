@@ -1,5 +1,5 @@
 ---
-title: "Consistent media backups"
+title: "Konzistentní zálohy obrázků"
 category: 22-image-service-cdn
 categoryTitle: "Image Service / CDN"
 order: 21
@@ -7,11 +7,11 @@ audience: [user, admin, ai]
 tags: [images, cdn, media]
 ---
 
-# Consistent media backups
+# Konzistentní zálohy obrázků
 
-## Scope
+## Rozsah
 Media volume, schválený commit/image digest a Compose. .env.image a Discord/session secrets zálohuj odděleně neveřejně; Cookbook je neobsahuje. Zálohu ukládej na jiný disk/host a testuj restore.
-## Docker backup
+## Záloha v Dockeru
 Příkazy spouštěj v deployment adresáři po potvrzení servisního okna; zastavení znamená výpadek i veřejného čtení. Vytvoř soukromý adresář mimo media root.
 ~~~bash
 backup="/opt/diamondcrew-image-backups/$(date -u +%Y%m%dT%H%M%SZ)"

@@ -39,6 +39,12 @@ test('Cookbook index includes every Markdown page, all 22 categories and validat
   const user = searchCookbook(pages, 'Paper', 'user'); assert.ok(user.length > 0); assert.ok(user.every(p => p.slug.startsWith('18-')));
   assert.ok(searchCookbook(pages, 'Pool overlaps', 'troubleshooting').some(p => p.slug.endsWith('/pool-overlaps')));
   assert.ok(searchCookbook(pages, 'inspect', 'ai').every(p => p.slug.startsWith('19-')));
+  assert.equal(pages.find(p => p.slug === '01-getting-started/index')?.categoryTitle, 'Začínáme');
+  assert.ok(searchCookbook(pages, 'pripojeni SFTP', 'user').some(p => p.slug.endsWith('/servers/sftp')));
+  const createServer = pages.find(p => p.slug.endsWith('/servers/create-server'))!;
+  assert.ok(createServer.markdown.includes('Admin → Servers → Create New'));
+  assert.ok(createServer.headings.some(h => h.text === 'CPU Limit'));
+  assert.ok(createServer.headings.some(h => h.text === 'Ověření výsledku'));
 });
 test('malformed frontmatter, duplicate slugs, broken links and unclosed fences fail validation', async () => {
   const f = await tempDocs();

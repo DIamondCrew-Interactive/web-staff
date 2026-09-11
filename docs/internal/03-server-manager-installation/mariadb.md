@@ -1,31 +1,23 @@
 ---
-title: "MariaDB installation"
+title: "Instalace MariaDB"
 category: 03-server-manager-installation
-categoryTitle: "Server Manager installation"
+categoryTitle: "Instalace Server Manageru"
 order: 4
 audience: ["admin","ai"]
 tags: ["mariadb"]
 ---
 
-# MariaDB installation
+# Instalace MariaDB
 
-## Purpose
+## K čemu slouží
 
-Nainstaluj mariadb-server distribučním správcem. Výsledek musí být ověřený před předáním do provozu.
+Nainstaluj mariadb-server distribučním správcem.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 DiamondCrew Server Manager: Pterodactyl 1.15.1 v /var/www/pterodactyl; PHP 8.3, MariaDB panel, lokální Redis, pteroq.service.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Nainstaluj mariadb-server distribučním správcem
 2. Aktivuj službu a omez listener dle skutečného DB modelu
@@ -37,20 +29,10 @@ sudo systemctl enable --now mariadb
 sudo mariadb-admin ping
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 mariadb-admin ping vrací živý server.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

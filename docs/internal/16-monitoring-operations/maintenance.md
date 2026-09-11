@@ -1,31 +1,23 @@
 ---
-title: "Maintenance procedure"
+title: "Postup údržby"
 category: 16-monitoring-operations
-categoryTitle: "Monitoring & operations"
+categoryTitle: "Monitoring a provoz"
 order: 208
 audience: ["admin","ai"]
 tags: ["maintenance"]
 ---
 
-# Maintenance procedure
+# Postup údržby
 
-## Purpose
+## K čemu slouží
 
-Oznam veřejný dopad. Výsledek musí být ověřený před předáním do provozu.
+Oznam veřejný dopad.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Pouze měřené stavy; UNKNOWN není OFFLINE. Provozní změny mají backup a ověření.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Oznam veřejný dopad
 2. Zálohuj
@@ -33,20 +25,10 @@ Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápis
 4. Ověř
 5. Ukonči údržbu až po skutečném testu
 
-
-
-## Verification
+## Ověření výsledku
 
 Status banner odpovídá realitě a incident má vlastníka.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

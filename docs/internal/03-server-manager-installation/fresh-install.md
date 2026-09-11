@@ -1,30 +1,30 @@
 ---
-title: "Fresh install: Debian to DiamondCrew Server Manager"
+title: "Čistá instalace: od Debianu po Server Manager"
 category: 03-server-manager-installation
-categoryTitle: "Server Manager installation"
+categoryTitle: "Instalace Server Manageru"
 order: 257
 audience: ["admin","ai"]
 tags: []
 ---
 
-# Fresh install: Debian to DiamondCrew Server Manager
+# Čistá instalace: od Debianu po Server Manager
 
-## Purpose
+## K čemu slouží
 Čistý Debian 12 → Panel 1.15.1/PHP 8.3 → fungující panel.diamondcrew.net → Wings test server → DiamondCrew branding. Postup je pro nový prázdný host, nikoliv přepsání existující instalace.
 
-## Audience
+## Pro koho
 Infrastrukturní administrátor / AI s potvrzenou změnou. Nejde o klientský návod běžného hráče.
 
-## Architecture
+## Kde a jak běží
 DIA-01 = dc-node01, 51.254.46.124. NPM drží veřejné 80/443. Lokální nginx obsluhuje /var/www/pterodactyl/public a PHP 8.3 FPM. MariaDB schema panel, lokální Redis, pteroq.service a cron jsou nutné součásti. Wings je samostatný agent.
 
-## Prerequisites
+## Než začneš
 SSH/recovery, sudo, volný disk, přidělená doména a plán firewallu. Pokud již existuje DB panel nebo /var/www/pterodactyl/.env, ZASTAV a použij update/restore, ne fresh install. Backup a návratový snapshot připrav i před bootstrapem hostu.
 
-## Variables / placeholders
+## Proměnné a zástupné hodnoty
 DB password = `<database-password>`, šifrovací klíč = `<app-key>`, neznámý SMTP = `<configure-for-target-environment>`. Hodnoty zadávej v neveřejném interaktivním prostředí. Příklad lokálního panel listeneru níže je 8082: není inventářní údaj ani obecný requirement; před použitím ověř ss -ltnp a firewall.
 
-## Installation
+## Instalace
 1. Potvrď OS a nainstaluj základní nástroje. Po případném rebootu znovu ověř SSH.
 ~~~bash
 cat /etc/os-release
@@ -63,7 +63,7 @@ sudo chown -R www-data:www-data /var/www/pterodactyl
 sudo -u www-data composer install --no-dev --optimize-autoloader
 ~~~
 
-## Configuration
+## Konfigurace
 4. V privátní MariaDB relaci vytvoř DB a uživatele. Nahraď placeholder bezpečně; nesdílej history výpis ani skutečné heslo. Aplikační grant nepotřebuje právo delegovat oprávnění jiným účtům.
 ~~~sql
 CREATE DATABASE panel;
@@ -110,7 +110,7 @@ Do cronu vlož právě jednou:
 * * * * * /usr/bin/php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1
 ~~~
 
-## Networking / local nginx
+## Síť a lokální nginx
 NPM používá veřejný port 80, proto lokální nginx nesmí současně zabírat stejný listener. Na novém hostu zkontroluj default site a konflikt vyřeš cíleně před startem; nemaž ostatní vhosty. Příklad /etc/nginx/sites-available/pterodactyl:
 ~~~nginx
 server {
@@ -137,10 +137,10 @@ curl -I -H 'Host: panel.diamondcrew.net' http://127.0.0.1:8082
 ~~~
 Port 8082 je příklad, firewall dovolí pouze potřebný NPM přístup. Trusted proxies v Panelu nastav podle skutečných NPM síťových adres; nevěř libovolným proxy hlavičkám z internetu.
 
-## DNS / Reverse Proxy
+## DNS a reverse proxy
 A panel → 51.254.46.124. Dokonči Docker a NPM install z navazujících návodů. NPM Forward: http, host reachable address (ne NPM localhost), zvolený nginx port. Vyžádej certifikát, Force SSL a ověř login. Neznámý lokální nginx port se nezaměňuje s veřejným 443.
 
-## Verification
+## Ověření výsledku
 ~~~bash
 systemctl is-active nginx php8.3-fpm mariadb redis-server pteroq
 redis-cli ping
@@ -148,13 +148,13 @@ curl -I https://panel.diamondcrew.net
 ~~~
 Přihlas prvního admina. Založ Location, DIA-01 node podle Wings guide, skutečné allocations, existující ověřený Egg a testovací DEV server. Otestuj instalaci, start/stop, console a soubory. Potom aplikuj schválený DiamondCrew reskin pro 1.15.1 a test zopakuj; reskin není úplný backend installer.
 
-## Backup / Update / Rollback
+## Záloha, aktualizace a rollback
 Před jakýmkoliv upgradem zachovej DB dump, provozní env v secure backupu, release a branding manifest. Upgrade nejprve na DEV. V případě regrese obnov stejnou generaci aplikace/DB/config, nikoliv pouze staré PHP soubory nad novým schematem.
 
-## Troubleshooting
+## Řešení problémů
 502: nginx/FPM/upstream. 500: Laravel/DB/config. Chybějící akce: pteroq/Redis/scheduler. Node offline: Wings/proxy/TLS/identita. Nikdy neopravuj existující šifrovanou DB novým klíčem.
 
-## Related pages
+## Související návody
 [Docker installation](../14-docker/install.md)
 [Wings installation](../04-wings/install.md)
 [NPM Compose](../07-nginx-proxy-manager/compose.md)

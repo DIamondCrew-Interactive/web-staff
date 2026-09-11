@@ -1,30 +1,27 @@
 ---
-title: "Docker & networking"
+title: "Docker a sítě"
 category: 14-docker
-categoryTitle: "Docker & networking"
+categoryTitle: "Docker a sítě"
 order: 0
 audience: ["admin","ai"]
 tags: ["index","14-docker"]
 ---
 
-# Docker & networking
+# Docker a sítě
 
-## Purpose
+## K čemu slouží
 Docker host, bridge sítě, pterodactyl0 a external diamondcrew-proxy mají různé úlohy.
 
-## How to use this category
-Vyber konkrétní úkol níže. Před změnou ověř cílovou verzi a současný stav; před zápisem připrav backup a po změně funkční test.
+## Návody v této kategorii
+- [Práce s Docker Compose](compose.md)
+- [Kontrola Docker sítí](networks.md)
+- [Sdílená síť pro proxy](shared-proxy.md)
+- [Logy kontejnerů](logs.md)
+- [Aktualizace a rollback Docker image](update-rollback.md)
+- [Docker Engine na Debianu 12](install.md)
 
-## Pages
-- [Docker Compose operations](compose.md)
-- [Inspect Docker networks](networks.md)
-- [Shared proxy network](shared-proxy.md)
-- [Container logs](logs.md)
-- [Image update and rollback](update-rollback.md)
-- [Docker Engine on Debian 12](install.md)
-
-## Safety and scope
+## Rozsah a zabezpečení
 Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials. DiamondCrew porty a adresy jsou konvence a inventář dodaný provozovatelem, ne obecné požadavky softwaru ani živé metriky.
 
-## Related pages
+## Související návody
 [Architecture](../01-getting-started/architecture.md)

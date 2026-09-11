@@ -1,51 +1,29 @@
 ---
-title: "SteamCMD workflow"
+title: "Práce se SteamCMD"
 category: 18-server-manager-user-guide
-categoryTitle: "Server Manager user guides"
+categoryTitle: "Používání Server Manageru"
 order: 77
 audience: ["user","admin","ai"]
 tags: ["source-engine","steamcmd"]
 ---
 
-# SteamCMD workflow
+# Práce se SteamCMD
 
-## Purpose
+## K čemu slouží
 
-Rozliš anonymní a autentizovanou instalaci. Výsledek musí být ověřený před předáním do provozu.
+Rozliš anonymní a autentizovanou instalaci.
 
-## Audience
-
-Uživatel Server Manageru; krok označený Admin vyžaduje správce. Není potřeba znát Linux pro běžnou klientskou část.
-
-## Architecture
-
-Panel klient spravuje vlastní server; vytvoření serveru, nodu a Eggu je práce administrátora.
-
-## Prerequisites
-
-Vyber správný server a ověř svá oprávnění. U běžícího PROD domluv údržbu a připrav zálohu před změnou.
-
-## WHERE / WHAT / WHY
+## Kde a co nastavit
 
 1. Rozliš anonymní a autentizovanou instalaci
 2. Ověř App ID a licenční podmínky
 3. force_install_dir nastav před login/app_update
 4. validate může přepsat distribuované soubory
 
-
-
-## Verification
+## Ověření výsledku
 
 Instalační log potvrzuje přesný produkt a očekávaný executable.
 
-## Update / rollback
-
-Před změnou ulož původní nastavení a vytvoř backup souvisejících dat. Pokud ověření selže, zastav nové zápisy a vrať poslední kompatibilní nastavení nebo ověřenou zálohu; obnovu přes živá data potvrzuje vlastník serveru.
-
-## Troubleshooting
-
-Chybějící položka UI obvykle znamená nedostatečné oprávnění nebo limit serveru. Předej správci název serveru, čas a redigovanou chybu. Neopakuj destruktivní operaci naslepo.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](../index.md)

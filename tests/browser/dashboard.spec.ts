@@ -96,17 +96,23 @@ test('Cookbook reader searches real guides, navigates on mobile and hides on sig
     await route.fulfill({ json });
   });
   await page.reload();
-  await expect(page.getByRole('link', { name: 'Documentation' })).toHaveAttribute('href', '/docs');
+  await expect(page.getByRole('link', { name: 'Dokumentace' })).toHaveAttribute('href', '/docs');
   await expect(page.locator('.documentation')).toHaveCount(0);
   // Only the UI fixture supplies a docs shell; real /docs auth is tested at the server.
   await page.route('**/docs', async route => route.fulfill({ response: await request.get('http://127.0.0.1:4310/') }));
-  await page.getByRole('link', { name: 'Documentation' }).click();
+  await page.getByRole('link', { name: 'Dokumentace' }).click();
   await page.setViewportSize({ width: 1440, height: 1050 });
-  await expect(page.getByRole('heading', { name: 'Infrastructure Cookbook', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Provozní příručka', exact: true })).toBeVisible();
   await expect(page.locator('.category-toggle')).toHaveCount(22);
   await expect(page.locator('.markdown h1')).toBeVisible();
-  await page.getByRole('textbox', { name: 'Search Cookbook' }).fill('Wings');
-  await page.getByLabel('Cookbook search filter').selectOption('ai');
+  await expect(page.locator('.nav-group')).toHaveCount(5);
+  await expect(page.locator('.guide-section')).not.toHaveCount(0);
+  expect(await page.locator('.markdown').evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);
+  await page.getByRole('button', { name: 'Spravovat herní server', exact: true }).click();
+  await expect(page.locator('.markdown h1')).toHaveText('Používání Server Manageru');
+  await expect(page.locator('.category-subgroup h4').filter({ hasText: 'Správa serverů' })).toBeVisible();
+  await page.getByRole('textbox', { name: 'Hledat v příručce' }).fill('Wings');
+  await page.getByLabel('Oblast hledání').selectOption('ai');
   await expect(page.locator('.search-results button').first()).toBeVisible();
   await expect(page.locator('.search-results button small').first()).toContainText('AI');
   await page.locator('.search-results button').first().click();
@@ -114,7 +120,7 @@ test('Cookbook reader searches real guides, navigates on mobile and hides on sig
   await expect(page.locator('.cookbook-toc a').first()).toBeVisible();
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.locator('.copy-code').first().click();
-  await expect(page.locator('.copy-code').first()).toHaveText('Copied');
+  await expect(page.locator('.copy-code').first()).toHaveText('Zkopírováno');
   expect(await page.evaluate(() => navigator.clipboard.readText())).not.toBe('');
   await page.screenshot({ path: '.artifacts/cookbook-desktop.png', fullPage: true });
   await page.locator('.page-pagination button').last().click();
@@ -123,9 +129,9 @@ test('Cookbook reader searches real guides, navigates on mobile and hides on sig
     await page.setViewportSize({ width, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
-  await page.getByRole('button', { name: 'Browse guide categories' }).click();
-  await expect(page.getByRole('navigation', { name: 'Cookbook categories' })).toBeVisible();
-  await page.getByRole('button', { name: 'Close guide navigation' }).click();
+  await page.getByRole('button', { name: 'Procházet kategorie' }).click();
+  await expect(page.getByRole('navigation', { name: 'Kategorie příručky' })).toBeVisible();
+  await page.getByRole('button', { name: 'Zavřít kategorie' }).click();
   await page.screenshot({ path: '.artifacts/cookbook-mobile.png', fullPage: true });
   expect(await page.evaluate(() => (window as any).badMarkdown)).toBeUndefined();
   await page.route('**/auth/logout', route => { authorized = false; return route.fulfill({ status: 204 }); });

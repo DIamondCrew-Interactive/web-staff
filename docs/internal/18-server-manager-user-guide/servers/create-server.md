@@ -1,18 +1,18 @@
 ---
-title: "Create a server: every field explained"
+title: "Vytvoření serveru: vysvětlení polí"
 category: 18-server-manager-user-guide
-categoryTitle: "Server Manager user guides"
+categoryTitle: "Používání Server Manageru"
 order: 262
 audience: ["user","admin","ai"]
 tags: ["create","server","limits","CPU","memory"]
 ---
 
-# Create a server: every field explained
+# Vytvoření serveru: vysvětlení polí
 
-## WHERE
+## Kde to najdeš
 Otevři https://panel.diamondcrew.net → Admin → Servers → Create New. Běžný klient nemusí tuto část vidět; v tom případě zadá požadavek správci a nepřebírá jeho účet.
 
-## WHAT / WHY
+## Význam jednotlivých polí
 ### Server Name
 Srozumitelné jméno včetně projektu/PROD/DEV; nemění automaticky doménu.
 
@@ -73,7 +73,7 @@ Ověřený runtime z nabídky Eggu; ne náhodný image tag.
 ### Startup Variables
 Validované nastavení instalace/runtime; secrets pouze v chráněném UI, nikoliv v Cookbooku.
 
-## Procedure
+## Postup
 1. Nejdřív potvrď projekt, prostředí, vlastníka, hru/verzi a kapacitu.
 2. Admin → Nodes → DIA-01 → Allocations: najdi skutečně volnou allocation. Další administrativní port není automaticky přidělený.
 3. Vyplň pole výše a zkontroluj Nest/Egg/image jako jednu kompatibilní sadu.
@@ -81,13 +81,13 @@ Validované nastavení instalace/runtime; secrets pouze v chráněném UI, nikol
 5. V Console proveď první start, pak stop a restart. Ve Files zkontroluj persistence; Network musí odpovídat allocations.
 6. Proveď klientské připojení a vytvoř první ověřený backup.
 
-## VERIFY
+## Ověření výsledku
 Server není ve stavu failed/installing, používá správný runtime/port, klient se připojí a po restartu zůstala data. Nesmí omylem vzniknout PROD s DEV vlastnictvím nebo sdílenou DB.
 
-## TROUBLESHOOTING
+## Řešení problémů
 Chybějící allocation = zjisti nodové porty a limit, nevymýšlej volné číslo. OOM = ověř Memory a skutečné využití. Exit127 = executable, working directory nebo libraries. Překlep Eggu neopravuj reinstallem bez zálohy. Vrať původní config, pokud se měnila existující instance.
 
-## Related pages
+## Související návody
 [Network allocations](network-allocations.md)
 [Paper tutorial](../minecraft/create-paper.md)
 [Egg concepts](../nests-eggs/nest-vs-egg.md)

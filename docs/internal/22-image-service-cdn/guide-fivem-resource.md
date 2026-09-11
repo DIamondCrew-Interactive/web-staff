@@ -18,4 +18,4 @@ Uploadni inventory/food/burger.png a COPY URL ověř v browseru. V NUI HTML lze 
 ~~~
 Konkrétní inventory resource může mít vlastní config pro image base URL: řiď se jeho dokumentací, neexistuje univerzální FiveM setting. Povol HTTPS img.dcrp.cz v CSP dané NUI, pokud ji používá. Při nedostupnosti CDN zobraz lokální fallback. URL neobsahuje admin token. Pro update s okamžitým efektem použij burger-v2.png.
 ## Ověření a řešení potíží
-Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](cors.md), [Troubleshooting](troubleshooting.md).
+Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](cors.md), [Řešení problémů](troubleshooting.md).

@@ -1,26 +1,26 @@
 ---
-title: "DIA-01 LOST: clean-server recovery"
+title: "Ztráta DIA-01: obnova na čistém serveru"
 category: 21-disaster-recovery
-categoryTitle: "Disaster recovery"
+categoryTitle: "Obnova po havárii"
 order: 254
 audience: ["admin","ai"]
 tags: []
 ---
 
-# DIA-01 LOST: clean-server recovery
+# Ztráta DIA-01: obnova na čistém serveru
 
-## Purpose / Audience
+## Účel a použití
 Obnovit DiamondCrew po ztrátě DIA-01 na čistém stroji. Recovery vede admin s vlastníkem incidentu; AI nejprve ověří dostupnost backupů a schválené přepnutí provozu.
 
-## Architecture / Prerequisites
+## Prostředí a předpoklady
 Původní host: dc-node01, Debian12, 51.254.46.124. Náhradní host může mít jinou IP, CPU architekturu a subnety. Neodvozuj kompatibilitu pouze z názvu DIA-01.
 
 Musí existovat mimo ztracený host: konzistentní panel/game DB dumps, Pterodactyl volumes, txData/server-data, verze aplikací/Eggů/artifactů, NPM data, secure env s původním APP_KEY/DB credentials, Wings identity, přístup k DNS/registry/Discord a klíče k šifrovaným backupům. Skutečné values sem nepatří. Bez původního APP_KEY mohou být šifrovaná data Panelu neobnovitelná i s DB dumpem.
 
-## Backup / incident containment
+## Záloha a omezení dopadu incidentu
 Pokud původní host částečně žije, zajisti konzistentní kopii a zastav konflikt zápisů. Vyhlas veřejný incident, určete skutečné RPO/RTO a recovery vlastníka. Při podezření na kompromitaci neobnovuj bez kontroly nedůvěryhodný executable.
 
-## Recovery procedure
+## Postup obnovy
 1. OS: nainstaluj čistý Debian12, ověř disky, čas a architekturu.
 2. Users/SSH: vytvoř osobní sudo účet a test druhé session; zachovej recovery konzoli.
 3. Docker: postup z Docker install; inspect všech subnetů, vyber volné IPAM rozsahy.
@@ -42,7 +42,7 @@ Pokud původní host částečně žije, zajisti konzistentní kopii a zastav ko
 19. Monitoring: připoj skutečné status targety a ověř měření; UNKNOWN bez zdroje není důvod vymyslet ONLINE.
 20. Final checklist: vlastník přijme obnovu, ukončete údržbu, vytvořte novou offsite zálohu a zapište postmortem.
 
-## Verification commands
+## Ověřovací příkazy
 ~~~bash
 systemctl --failed
 systemctl is-active mariadb redis-server php8.3-fpm nginx pteroq wings
@@ -54,10 +54,10 @@ curl -I https://staff.diamondcrew.net
 curl https://status.diamondcrew.net/api/public/status
 ~~~
 
-## Rollback / Stop conditions
+## Rollback a podmínky zastavení
 Pokud obnovovací bod neprojde testem, nepřepínej DNS a nespouštěj produkční zápisy. Vrať poslední ověřenou konzistentní sadu nebo předej chybějící backup/secret vlastníku. Starou databázi nepřepisuj novými pokusy bez uchování kopie.
 
-## Related pages
+## Související návody
 [Full control plane](../02-dia-nodes/full-control-plane.md)
 [Fresh Panel install](../03-server-manager-installation/fresh-install.md)
 [Wings install](../04-wings/install.md)

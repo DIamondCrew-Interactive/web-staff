@@ -1,27 +1,27 @@
 ---
-title: "Docker Engine on Debian 12"
+title: "Docker Engine na Debianu 12"
 category: 14-docker
-categoryTitle: "Docker & networking"
+categoryTitle: "Docker a sítě"
 order: 215
 audience: ["admin","ai"]
 tags: []
 ---
 
-# Docker Engine on Debian 12
+# Docker Engine na Debianu 12
 
-## Purpose
+## K čemu slouží
 Připravit Docker Engine a Compose plugin na čistém Debianu, podle oficiálního apt repository postupu. Není to povel aktualizovat živý DIA-01 bez servisního okna.
 
-## Audience
+## Pro koho
 Admin a AI. Root/sudo a recovery konzole jsou předpoklad.
 
-## Architecture
+## Kde a jak běží
 Hostový Docker provozuje NPM, Wings hry a weby. Docker group poskytuje prakticky root ekvivalent; nepřidávej do ní běžné hráče.
 
-## Prerequisites
+## Než začneš
 Ověř Debian 12, architekturu, disk a stávající balíčky. Konfliktní docker.io/containerd odstraň jen podle inventáře a oficiálního migračního postupu, ne naslepo na živém hostu.
 
-## Installation
+## Instalace
 ~~~bash
 cat /etc/os-release
 uname -m
@@ -40,26 +40,26 @@ sudo systemctl enable --now docker
 ~~~
 Před potvrzením balíčků zaznamenej vybrané verze; nepřeznačuj je za univerzální latest.
 
-## Configuration / networking
+## Konfigurace a síť
 ~~~bash
 docker network ls
 docker network inspect $(docker network ls -q) --format '{{.Name}} -> {{range .IPAM.Config}}{{.Subnet}}{{end}}'
 ~~~
 Na novém hostu vyber volné subnety. 172.19.0.0/16 je současná DiamondCrew konfigurace pterodactyl0, ne povinnost Dockeru.
 
-## Verification
+## Ověření výsledku
 ~~~bash
 sudo docker run --rm hello-world
 docker version
 docker compose version
 ~~~
 
-## Backup / update / rollback
+## Záloha, aktualizace a rollback
 Uchovej service Compose, image digesty a konzistentní data před upgradem Dockeru. Reboot/daemon upgrade ovlivní všechny hry. Návrat balíčků musí odpovídat podporovanému storage formátu; při nejasnosti obnov systémový snapshot, ne náhodný starší daemon.
 
-## Troubleshooting
+## Řešení problémů
 Socket permission není důvod k chmod 777. Connection refused vede ke kontrole docker.service; pool overlap ke kontrole IPAM.
 
-## Related pages
+## Související návody
 [Official Debian install](https://docs.docker.com/engine/install/debian/)
 [Network map](../01-getting-started/network-map.md)

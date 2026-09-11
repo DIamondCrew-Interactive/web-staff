@@ -14,4 +14,4 @@ Povolený Discord účet pro /manage. Obrázky jsou veřejné; žádné citlivé
 ## Postup
 Nejprve vytvoř inventory/food. Vyber kostka/1.png → Přesunout → inventory/food/1.png → Uložit. Zadej úplnou relativní cílovou cestu. Ověř novou URL; stará vrací404. Před změnou aktualizuj spotřebitele původní URL.
 ## Ověření a řešení potíží
-Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](rename-move.md), [Troubleshooting](troubleshooting.md).
+Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](rename-move.md), [Řešení problémů](troubleshooting.md).

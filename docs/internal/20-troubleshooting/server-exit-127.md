@@ -1,39 +1,39 @@
 ---
-title: "Server exits 127"
+title: "Server končí s kódem 127"
 category: 20-troubleshooting
-categoryTitle: "Troubleshooting"
+categoryTitle: "Řešení problémů"
 order: 224
 audience: ["admin","ai"]
 tags: ["server-exit-127","troubleshooting","diagnostics"]
 ---
 
-# Server exits 127
+# Server končí s kódem 127
 
-## Symptoms
+## Příznaky
 Process cannot execute startup command.
 
-## Likely Causes
+## Pravděpodobné příčiny
 Missing executable, interpreter, library loader or wrong path.
 
-## Diagnostics
+## Diagnostika
 Před změnou potvrď správný host/server a čas události. Příkazy jsou read-only, pokud není uvedeno jinak; logy před sdílením rediguj.
 
 ~~~bash
 docker ps -a
 ~~~
 
-## Fix
+## Oprava
 Zkontroluj actual startup a Files. Existence binárky sama nestačí, může chybět interpreter/loader. Vyber kompatibilní runtime a oprav cestu.
 
-## Backup / Rollback
+## Záloha a rollback
 Uchovej související konfiguraci a konzistentní data před opravou. Pokud zásah selže, vrať pouze změněnou část z ověřené zálohy; při schema změně vrať kompatibilní aplikaci i DB. Nezaměň návrat DNS s obnovou dat.
 
-## Verification
+## Ověření výsledku
 Proces startuje bez path/library chyby. Test musí reprodukovat původně selhávající operaci a potvrdit zachování dat.
 
-## Prevention
+## Prevence
 Startup smoke test pro novou i starou instanci. Zaznamenej skutečnou příčinu a výsledek testu, ne jen provedený restart.
 
-## Related pages
+## Související návody
 [Infrastructure overview](../01-getting-started/architecture.md)
-[Disaster recovery](../21-disaster-recovery/dia-01-lost.md)
+[Obnova po havárii](../21-disaster-recovery/dia-01-lost.md)

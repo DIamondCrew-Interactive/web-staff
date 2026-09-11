@@ -1,50 +1,28 @@
 ---
-title: "Test new game lifecycle"
+title: "Ověření provozu nové hry"
 category: 18-server-manager-user-guide
-categoryTitle: "Server Manager user guides"
+categoryTitle: "Používání Server Manageru"
 order: 111
 audience: ["user","admin","ai"]
 tags: ["new-game","test-egg"]
 ---
 
-# Test new game lifecycle
+# Ověření provozu nové hry
 
-## Purpose
+## K čemu slouží
 
-Testuj install/start/stop/restart/reinstall. Výsledek musí být ověřený před předáním do provozu.
+Testuj install/start/stop/restart/reinstall.
 
-## Audience
-
-Uživatel Server Manageru; krok označený Admin vyžaduje správce. Není potřeba znát Linux pro běžnou klientskou část.
-
-## Architecture
-
-Panel klient spravuje vlastní server; vytvoření serveru, nodu a Eggu je práce administrátora.
-
-## Prerequisites
-
-Vyber správný server a ověř svá oprávnění. U běžícího PROD domluv údržbu a připrav zálohu před změnou.
-
-## WHERE / WHAT / WHY
+## Kde a co nastavit
 
 1. Testuj install/start/stop/restart/reinstall
 2. Ověř více allocations, DNS, uživatelské permissions a persistence
 3. Obnov backup do druhé DEV instance
 
-
-
-## Verification
+## Ověření výsledku
 
 Znáš omezení každé operace a všechny požadované testy mají výsledek.
 
-## Update / rollback
-
-Před změnou ulož původní nastavení a vytvoř backup souvisejících dat. Pokud ověření selže, zastav nové zápisy a vrať poslední kompatibilní nastavení nebo ověřenou zálohu; obnovu přes živá data potvrzuje vlastník serveru.
-
-## Troubleshooting
-
-Chybějící položka UI obvykle znamená nedostatečné oprávnění nebo limit serveru. Předej správci název serveru, čas a redigovanou chybu. Neopakuj destruktivní operaci naslepo.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](../index.md)

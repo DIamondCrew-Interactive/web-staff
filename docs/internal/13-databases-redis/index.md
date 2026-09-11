@@ -1,28 +1,25 @@
 ---
-title: "Databases & Redis"
+title: "Databáze a Redis"
 category: 13-databases-redis
-categoryTitle: "Databases & Redis"
+categoryTitle: "Databáze a Redis"
 order: 0
 audience: ["admin","ai"]
 tags: ["index","13-databases-redis"]
 ---
 
-# Databases & Redis
+# Databáze a Redis
 
-## Purpose
+## K čemu slouží
 MariaDB databáze panel a oddělené game databáze; Redis není náhradou trvalé DB.
 
-## How to use this category
-Vyber konkrétní úkol níže. Před změnou ověř cílovou verzi a současný stav; před zápisem připrav backup a po změně funkční test.
+## Návody v této kategorii
+- [Správa MariaDB](mariadb.md)
+- [Správa Redis](redis.md)
+- [Založení herní databáze](game-database.md)
+- [Export a obnova databáze](backup-restore.md)
 
-## Pages
-- [MariaDB operations](mariadb.md)
-- [Redis operations](redis.md)
-- [Game database provisioning](game-database.md)
-- [Database dump and restore](backup-restore.md)
-
-## Safety and scope
+## Rozsah a zabezpečení
 Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials. DiamondCrew porty a adresy jsou konvence a inventář dodaný provozovatelem, ne obecné požadavky softwaru ani živé metriky.
 
-## Related pages
+## Související návody
 [Architecture](../01-getting-started/architecture.md)

@@ -1,31 +1,23 @@
 ---
-title: "Composer dependencies"
+title: "Závislosti Composeru"
 category: 03-server-manager-installation
-categoryTitle: "Server Manager installation"
+categoryTitle: "Instalace Server Manageru"
 order: 8
 audience: ["admin","ai"]
 tags: ["composer"]
 ---
 
-# Composer dependencies
+# Závislosti Composeru
 
-## Purpose
+## K čemu slouží
 
-Použij Composer 2 a ověřený installer z getcomposer.org. Výsledek musí být ověřený před předáním do provozu.
+Použij Composer 2 a ověřený installer z getcomposer.org.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 DiamondCrew Server Manager: Pterodactyl 1.15.1 v /var/www/pterodactyl; PHP 8.3, MariaDB panel, lokální Redis, pteroq.service.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Použij Composer 2 a ověřený installer z getcomposer.org
 2. V cílové aplikaci použij composer install s lockfile
@@ -37,20 +29,10 @@ composer --version
 composer install --no-dev --optimize-autoloader
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Lockfile se samovolně nezměnil; vendor/autoload.php existuje.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

@@ -1,5 +1,5 @@
 ---
-title: "Update Staff Center"
+title: "Aktualizace Staff Centeru"
 category: 11-staff-center
 categoryTitle: "Staff Center"
 order: 183
@@ -7,25 +7,17 @@ audience: ["admin","ai"]
 tags: ["update"]
 ---
 
-# Update Staff Center
+# Aktualizace Staff Centeru
 
-## Purpose
+## K čemu slouží
 
-Uchovej předchozí commit, env a image. Výsledek musí být ověřený před předáním do provozu.
+Uchovej předchozí commit, env a image.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Veřejný rozcestník; Discord povoluje Cookbook UI. Express na 3000 za NPM.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Uchovej předchozí commit, env a image
 2. Až po schváleném pushi fetchni a checkoutni konkrétní commit
@@ -42,20 +34,10 @@ docker compose up -d
 docker compose ps
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Status a login fungují; nic v deploymentu nespouští vzdálené příkazy z dokumentace.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

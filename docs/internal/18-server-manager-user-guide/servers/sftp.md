@@ -1,52 +1,30 @@
 ---
-title: "Use SFTP"
+title: "Připojení přes SFTP"
 category: 18-server-manager-user-guide
-categoryTitle: "Server Manager user guides"
+categoryTitle: "Používání Server Manageru"
 order: 50
 audience: ["user","admin","ai"]
 tags: ["servers","sftp"]
 ---
 
-# Use SFTP
+# Připojení přes SFTP
 
-## Purpose
+## K čemu slouží
 
-Server. Výsledek musí být ověřený před předáním do provozu.
+Přenášení souborů herního serveru pomocí SFTP klienta.
 
-## Audience
+## Kde a co nastavit
 
-Uživatel Server Manageru; krok označený Admin vyžaduje správce. Není potřeba znát Linux pro běžnou klientskou část.
+1. V panelu otevři svůj server.
+2. Přejdi do **Settings → SFTP Details**.
+3. Do SFTP klienta zadej adresu, port a uživatelské jméno z panelu.
+4. Přihlas se vlastním účtem s oprávněním k souborům.
+5. Nepřepisuj data, do kterých běžící produkční server právě zapisuje.
 
-## Architecture
-
-Panel klient spravuje vlastní server; vytvoření serveru, nodu a Eggu je práce administrátora.
-
-## Prerequisites
-
-Vyber správný server a ověř svá oprávnění. U běžícího PROD domluv údržbu a připrav zálohu před změnou.
-
-## WHERE / WHAT / WHY
-
-1. Server
-2. Settings/SFTP Details
-3. Do SFTP klienta zadej host, port a username z panelu
-4. Přihlas se vlastním oprávněným účtem
-5. Nenahrávej přes zapisující produkční data
-
-
-
-## Verification
+## Ověření výsledku
 
 Testovací soubor lze nahrát, přečíst a odstranit; SCP a FTP nejsou totéž co SFTP.
 
-## Update / rollback
-
-Před změnou ulož původní nastavení a vytvoř backup souvisejících dat. Pokud ověření selže, zastav nové zápisy a vrať poslední kompatibilní nastavení nebo ověřenou zálohu; obnovu přes živá data potvrzuje vlastník serveru.
-
-## Troubleshooting
-
-Chybějící položka UI obvykle znamená nedostatečné oprávnění nebo limit serveru. Předej správci název serveru, čas a redigovanou chybu. Neopakuj destruktivní operaci naslepo.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](../index.md)

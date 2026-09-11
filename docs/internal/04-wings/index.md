@@ -9,33 +9,30 @@ tags: ["index","04-wings"]
 
 # Wings
 
-## Purpose
+## K čemu slouží
 Wings 1.13.3 na DIA-01: HTTP 0.0.0.0:8443 za NPM TLS, SFTP 2022, data /var/lib/pterodactyl/volumes.
 
-## How to use this category
-Vyber konkrétní úkol níže. Před změnou ověř cílovou verzi a současný stav; před zápisem připrav backup a po změně funkční test.
-
-## Pages
-- [Wings prerequisites](requirements.md)
-- [Create the DIA node](create-node.md)
-- [Wings configuration](config-yml.md)
-- [Wings systemd](systemd.md)
-- [Docker for Wings](docker.md)
-- [Wings networking](network.md)
+## Návody v této kategorii
+- [Předpoklady pro Wings](requirements.md)
+- [Vytvoření DIA nodu](create-node.md)
+- [Konfigurace Wings](config-yml.md)
+- [Služba Wings v systemd](systemd.md)
+- [Docker pro Wings](docker.md)
+- [Síťové nastavení Wings](network.md)
 - [pterodactyl0](pterodactyl0.md)
-- [Wings SFTP](sftp.md)
-- [Wings game allocations](allocations.md)
-- [Wings reverse proxy](reverse-proxy.md)
-- [Wings TLS model](ssl.md)
-- [Update Wings](update.md)
-- [Migrate a Wings node](migration.md)
-- [Wings diagnostics](diagnostics.md)
-- [Fix pool overlaps](pool-overlaps.md)
-- [Wings troubleshooting](troubleshooting.md)
-- [Install Wings 1.13.3 behind NPM](install.md)
+- [SFTP ve Wings](sftp.md)
+- [Herní porty ve Wings](allocations.md)
+- [Reverse proxy pro Wings](reverse-proxy.md)
+- [TLS ve Wings](ssl.md)
+- [Aktualizace Wings](update.md)
+- [Migrace Wings nodu](migration.md)
+- [Diagnostika Wings](diagnostics.md)
+- [Oprava překryvu síťových rozsahů](pool-overlaps.md)
+- [Řešení problémů Wings](troubleshooting.md)
+- [Instalace Wings 1.13.3 za NPM](install.md)
 
-## Safety and scope
+## Rozsah a zabezpečení
 Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials. DiamondCrew porty a adresy jsou konvence a inventář dodaný provozovatelem, ne obecné požadavky softwaru ani živé metriky.
 
-## Related pages
+## Související návody
 [Architecture](../01-getting-started/architecture.md)

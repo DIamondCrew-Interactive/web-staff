@@ -1,5 +1,5 @@
 ---
-title: "Image Service troubleshooting"
+title: "Řešení problémů Image Service"
 category: 22-image-service-cdn
 categoryTitle: "Image Service / CDN"
 order: 27
@@ -7,9 +7,9 @@ audience: [user, admin, ai]
 tags: [images, cdn, media]
 ---
 
-# Image Service troubleshooting
+# Řešení problémů Image Service
 
-## Diagnose before changing
+## Diagnostika před změnou
 Potvrď doménu, cílový host, verzi, image/container a zda jde o public GET nebo management. Nikdy nehledat chybu vypnutím auth či chmod777.
 | Symptom | Check | Correction |
 |---|---|---|
@@ -23,5 +23,5 @@ Potvrď doménu, cílový host, verzi, image/container a zda jde o public GET ne
 | 429 | probíhá jiný write | počkej, neopakuj souběžně |
 | 503 | canonical root, mount permissions, disk | diagnostika cílového volume, restore plán |
 | Stará image | mutable cache300s | vyčkej TTL nebo versioned filename |
-## Escalation
-Nález symlinku, nesoulad checksumů, nezjištěný legacy storage nebo potřeba bulk delete zastavuje změnu. Předej redigovaný nález a inventory. [Migration](migration.md), [Security](security.md).
+## Kdy předat problém správci
+Nález symlinku, nesoulad checksumů, nezjištěný legacy storage nebo potřeba bulk delete zastavuje změnu. Předej redigovaný nález a inventory. [Migration](migration.md), [Zabezpečení](security.md).

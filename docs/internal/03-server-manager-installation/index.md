@@ -1,52 +1,49 @@
 ---
-title: "Server Manager installation"
+title: "Instalace Server Manageru"
 category: 03-server-manager-installation
-categoryTitle: "Server Manager installation"
+categoryTitle: "Instalace Server Manageru"
 order: 0
 audience: ["admin","ai"]
 tags: ["index","03-server-manager-installation"]
 ---
 
-# Server Manager installation
+# Instalace Server Manageru
 
-## Purpose
+## K čemu slouží
 DiamondCrew Server Manager: Pterodactyl 1.15.1 v /var/www/pterodactyl; PHP 8.3, MariaDB panel, lokální Redis, pteroq.service.
 
-## How to use this category
-Vyber konkrétní úkol níže. Před změnou ověř cílovou verzi a současný stav; před zápisem připrav backup a po změně funkční test.
-
-## Pages
-- [Panel architecture](architecture.md)
-- [Debian and runtime requirements](requirements.md)
+## Návody v této kategorii
+- [Architektura panelu](architecture.md)
+- [Požadavky na Debian a runtime](requirements.md)
 - [PHP 8.3](php.md)
-- [MariaDB installation](mariadb.md)
-- [Local Redis](redis.md)
-- [Panel database](database.md)
-- [Verified Panel download](download.md)
-- [Composer dependencies](composer.md)
-- [Panel environment](environment.md)
-- [Application encryption key](app-key.md)
-- [Database migrations](migrations.md)
-- [Panel filesystem permissions](permissions.md)
+- [Instalace MariaDB](mariadb.md)
+- [Lokální Redis](redis.md)
+- [Databáze panelu](database.md)
+- [Ověřené stažení panelu](download.md)
+- [Závislosti Composeru](composer.md)
+- [Proměnné prostředí panelu](environment.md)
+- [Šifrovací klíč aplikace](app-key.md)
+- [Databázové migrace](migrations.md)
+- [Oprávnění souborů panelu](permissions.md)
 - [pteroq queue worker](queue-worker.md)
-- [Panel scheduler](scheduler.md)
-- [Panel local nginx](local-nginx.md)
-- [Panel behind NPM](npm-proxy.md)
-- [First administrator](first-admin.md)
-- [Locations](locations.md)
-- [Node registration](nodes.md)
-- [Admin allocations](allocations.md)
-- [Nests and Eggs administration](nests-eggs.md)
-- [DiamondCrew reskin](reskin.md)
-- [Reskin release selection](reskin-release.md)
-- [Panel update](update.md)
-- [Panel backup](backup.md)
-- [Panel rollback](rollback.md)
-- [Panel troubleshooting](troubleshooting.md)
-- [Fresh install: Debian to DiamondCrew Server Manager](fresh-install.md)
+- [Plánovač úloh panelu](scheduler.md)
+- [Lokální nginx pro panel](local-nginx.md)
+- [Panel za NPM](npm-proxy.md)
+- [První administrátor](first-admin.md)
+- [Lokality (Locations)](locations.md)
+- [Registrace nodu](nodes.md)
+- [Správa portů (Allocations)](allocations.md)
+- [Správa Nests a Eggs](nests-eggs.md)
+- [Vzhled DiamondCrew](reskin.md)
+- [Výběr verze vzhledu](reskin-release.md)
+- [Aktualizace panelu](update.md)
+- [Záloha panelu](backup.md)
+- [Rollback panelu](rollback.md)
+- [Řešení problémů panelu](troubleshooting.md)
+- [Čistá instalace: od Debianu po Server Manager](fresh-install.md)
 
-## Safety and scope
+## Rozsah a zabezpečení
 Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials. DiamondCrew porty a adresy jsou konvence a inventář dodaný provozovatelem, ne obecné požadavky softwaru ani živé metriky.
 
-## Related pages
+## Související návody
 [Architecture](../01-getting-started/architecture.md)

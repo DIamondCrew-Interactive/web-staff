@@ -1,31 +1,23 @@
 ---
-title: "Inspect Docker networks"
+title: "Kontrola Docker sítí"
 category: 14-docker
-categoryTitle: "Docker & networking"
+categoryTitle: "Docker a sítě"
 order: 193
 audience: ["admin","ai"]
 tags: ["networks"]
 ---
 
-# Inspect Docker networks
+# Kontrola Docker sítí
 
-## Purpose
+## K čemu slouží
 
-Nejdřív ls/inspect. Výsledek musí být ověřený před předáním do provozu.
+Nejdřív ls/inspect.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 Docker host, bridge sítě, pterodactyl0 a external diamondcrew-proxy mají různé úlohy.
 
-## Prerequisites
-
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
-
-## Configuration / procedure
+## Postup
 
 1. Nejdřív ls/inspect
 2. Zaznamenej název, subnet a připojené endpointy
@@ -36,20 +28,10 @@ docker network ls
 docker network inspect $(docker network ls -q) --format '{{.Name}} -> {{range .IPAM.Config}}{{.Subnet}}{{end}}'
 ~~~
 
-
-
-## Verification
+## Ověření výsledku
 
 Každá služba má očekávanou síť a žádný překryv.
 
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

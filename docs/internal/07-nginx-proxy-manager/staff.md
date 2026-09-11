@@ -1,5 +1,5 @@
 ---
-title: "Staff Center proxy"
+title: "Proxy pro Staff Center"
 category: 07-nginx-proxy-manager
 categoryTitle: "Nginx Proxy Manager"
 order: 149
@@ -7,45 +7,27 @@ audience: ["admin","ai"]
 tags: ["staff"]
 ---
 
-# Staff Center proxy
+# Proxy pro Staff Center
 
-## Purpose
+## K čemu slouží
 
-staff.diamondcrew.net. Výsledek musí být ověřený před předáním do provozu.
+Zpřístupní Staff Center na `https://staff.diamondcrew.net` přes NPM.
 
-## Audience
-
-Administrátor a AI agent s oprávněním k dané změně.
-
-## Architecture
+## Kde a jak běží
 
 nginx-proxy-manager_app_1 na DIA-01, porty 80/443 a admin 81; připojení do diamondcrew-proxy.
 
-## Prerequisites
+## Postup
 
-Potvrď cílový host, používanou verzi a aktuální konfiguraci. Před zápisem měj obnovitelnou zálohu a schválené servisní okno.
+1. V NPM otevři **Proxy Hosts** a příslušný záznam pro `staff.diamondcrew.net`.
+2. Nastav **Scheme** na `http`, **Forward Hostname / IP** na `staffcenter` a **Forward Port** na `3000`.
+3. Veřejnou stránku nech dostupnou bez Basic Auth. Přístup k dokumentaci ověřuje aplikace přes Discord.
+4. Zkontroluj HTTPS certifikát. Zabezpečené cookies a Discord callback vyžadují veřejné HTTPS.
 
-## Configuration / procedure
+## Ověření výsledku
 
-1. staff.diamondcrew.net
-2. HTTP staffcenter:3000
-3. Bez povinné NPM Basic Auth
-4. TLS cookie a Discord callback vyžadují veřejné HTTPS
+Bez přihlášení musí homepage vrátit HTTP `200` a chráněná dokumentace HTTP `401`.
 
-
-
-## Verification
-
-Anonymous homepage je 200, protected docs 401.
-
-## Update / rollback
-
-Zapiš změněné soubory/verze. Při neúspěšném ověření vrať konkrétní změnu z předem připravené zálohy a zopakuj stejný test. Pokud update změnil databázové schema, samotný downgrade binárky nestačí; vrať kompatibilní kombinaci aplikace a dat.
-
-## Troubleshooting
-
-Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém konfigurace, procesu a sítě. Diagnostické výstupy před sdílením zbav credentials, cookies a osobních dat.
-
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](index.md)

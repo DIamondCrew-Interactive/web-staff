@@ -9,22 +9,19 @@ tags: ["index","06-txadmin"]
 
 # txAdmin
 
-## Purpose
+## K čemu slouží
 DiamondCrew monitor nad FXServer artifactem; NPM publikuje konzoli odděleně od hry.
 
-## How to use this category
-Vyber konkrétní úkol níže. Před změnou ověř cílovou verzi a současný stav; před zápisem připrav backup a po změně funkční test.
+## Návody v této kategorii
+- [Vlastní monitor txAdminu](architecture.md)
+- [Průběh instalace monitoru](installer.md)
+- [Výběr verze monitoru](release.md)
+- [Veřejná URL txAdminu](reverse-proxy.md)
+- [Aktualizace DiamondCrew txAdminu](update.md)
+- [Rollback monitoru](rollback.md)
 
-## Pages
-- [txAdmin custom monitor](architecture.md)
-- [Monitor installer pipeline](installer.md)
-- [Select custom monitor release](release.md)
-- [txAdmin public URL](reverse-proxy.md)
-- [Update DiamondCrew txAdmin](update.md)
-- [Rollback the monitor](rollback.md)
-
-## Safety and scope
+## Rozsah a zabezpečení
 Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials. DiamondCrew porty a adresy jsou konvence a inventář dodaný provozovatelem, ne obecné požadavky softwaru ani živé metriky.
 
-## Related pages
+## Související návody
 [Architecture](../01-getting-started/architecture.md)

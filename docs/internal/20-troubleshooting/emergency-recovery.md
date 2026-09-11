@@ -1,21 +1,21 @@
 ---
-title: "Emergency recovery decision"
+title: "Rozhodnutí o nouzové obnově"
 category: 20-troubleshooting
-categoryTitle: "Troubleshooting"
+categoryTitle: "Řešení problémů"
 order: 235
 audience: ["admin","ai"]
 tags: ["emergency-recovery","troubleshooting","diagnostics"]
 ---
 
-# Emergency recovery decision
+# Rozhodnutí o nouzové obnově
 
-## Symptoms
+## Příznaky
 Multiple infrastructure services unavailable.
 
-## Likely Causes
+## Pravděpodobné příčiny
 Host/storage/network failure or security incident.
 
-## Diagnostics
+## Diagnostika
 Před změnou potvrď správný host/server a čas události. Příkazy jsou read-only, pokud není uvedeno jinak; logy před sdílením rediguj.
 
 ~~~bash
@@ -24,18 +24,18 @@ docker ps
 df -h
 ~~~
 
-## Fix
+## Oprava
 Vyhlas incident, zastav nebezpečné nové zápisy, zajisti recovery konzoli a obnov podle DIA-01 LOST runbooku. Neexperimentuj s produkčními volumes bez zálohy.
 
-## Backup / Rollback
+## Záloha a rollback
 Uchovej související konfiguraci a konzistentní data před opravou. Pokud zásah selže, vrať pouze změněnou část z ověřené zálohy; při schema změně vrať kompatibilní aplikaci i DB. Nezaměň návrat DNS s obnovou dat.
 
-## Verification
+## Ověření výsledku
 Kontrolovaný návrat služeb s akceptací vlastníka. Test musí reprodukovat původně selhávající operaci a potvrdit zachování dat.
 
-## Prevention
+## Prevence
 Offsite backup a pravidelný restore test. Zaznamenej skutečnou příčinu a výsledek testu, ne jen provedený restart.
 
-## Related pages
+## Související návody
 [Infrastructure overview](../01-getting-started/architecture.md)
-[Disaster recovery](../21-disaster-recovery/dia-01-lost.md)
+[Obnova po havárii](../21-disaster-recovery/dia-01-lost.md)

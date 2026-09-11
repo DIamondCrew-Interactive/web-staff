@@ -1,31 +1,31 @@
 ---
-title: "New game workflow"
+title: "Přidání nové hry"
 category: 18-server-manager-user-guide
-categoryTitle: "Server Manager user guides"
+categoryTitle: "Používání Server Manageru"
 order: 103
 audience: ["user","admin","ai"]
 tags: ["new-game","index"]
 ---
 
-# New game workflow
+# Přidání nové hry
 
-## Purpose
+## K čemu slouží
 
-Identifikuj přesný software. Výsledek musí být ověřený před předáním do provozu.
+Identifikuj přesný software.
 
-## Audience
+## Pro koho
 
 Uživatel Server Manageru; krok označený Admin vyžaduje správce. Není potřeba znát Linux pro běžnou klientskou část.
 
-## Architecture
+## Kde a jak běží
 
 Panel klient spravuje vlastní server; vytvoření serveru, nodu a Eggu je práce administrátora.
 
-## Prerequisites
+## Než začneš
 
 Vyber správný server a ověř svá oprávnění. U běžícího PROD domluv údržbu a připrav zálohu před změnou.
 
-## WHERE / WHAT / WHY
+## Kde a co nastavit
 
 1. Identifikuj přesný software
 2. Ověř Linux podporu a oficiální instalační metodu
@@ -35,20 +35,18 @@ Vyber správný server a ověř svá oprávnění. U běžícího PROD domluv ú
 6. Backup
 7. PROD
 
-
-
-## Verification
+## Ověření výsledku
 
 Install/start/stop/restart/reinstall/network/restore jsou doložené, ne odhadnuté.
 
-## Update / rollback
+## Aktualizace a rollback
 
 Před změnou ulož původní nastavení a vytvoř backup souvisejících dat. Pokud ověření selže, zastav nové zápisy a vrať poslední kompatibilní nastavení nebo ověřenou zálohu; obnovu přes živá data potvrzuje vlastník serveru.
 
-## Troubleshooting
+## Řešení problémů
 
 Chybějící položka UI obvykle znamená nedostatečné oprávnění nebo limit serveru. Předej správci název serveru, čas a redigovanou chybu. Neopakuj destruktivní operaci naslepo.
 
-## Related pages
+## Související návody
 
 [Kategorie a navazující návody](../index.md)

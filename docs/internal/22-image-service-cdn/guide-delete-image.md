@@ -14,4 +14,4 @@ Povolený Discord účet pro /manage. Obrázky jsou veřejné; žádné citlivé
 ## Postup
 Zjisti spotřebitele URL a uchovej zálohu. Vyber konkrétní obrázek → Smazat → v dialogu zkontroluj cestu → Smazat. Soubor zmizí ze seznamu, nový GET vrátí404. Cache může chvíli ukazovat starou kopii. Undo není implementované.
 ## Ověření a řešení potíží
-Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](delete.md), [Troubleshooting](troubleshooting.md).
+Zkontroluj výslednou cestu, metadata a případnou veřejnou URL. Chybu neopravuj blind overwrite nebo hromadným mazáním. [Podrobný postup](delete.md), [Řešení problémů](troubleshooting.md).
