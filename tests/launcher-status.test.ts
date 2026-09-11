@@ -9,7 +9,7 @@ import {readWebTargets} from '../server/web-status.js';
 import {launcherConfig} from '../server/launcher.js';
 
 test('launcher has only verified enabled destinations; Proxy is an explicit runtime switch',()=>{
- const defaults=launcherConfig(false);assert.deepEqual(defaults.services.filter(s=>s.enabled).map(s=>s.id),['manager','controller','prismatic-dev','status']);
+ const defaults=launcherConfig(false,false);assert.deepEqual(defaults.services.filter(s=>s.enabled).map(s=>s.id),['manager','controller','prismatic-dev','status']);
  for(const id of ['prismatic-prod','diamond-prod','diamond-dev','proxy'])assert.equal(defaults.services.find(s=>s.id===id)?.enabled,false);
  assert.equal(defaults.infrastructureServices.find(s=>s.id==='images')?.enabled,false);
  assert.equal(launcherConfig(true).services.find(s=>s.id==='proxy')?.enabled,true);
@@ -36,4 +36,17 @@ test('public endpoint includes required service identities but never returns pri
  try{const text=await(await fetch(base+'/api/public/status')).text();for(const privateValue of ['10.1.2.3','admin-private','cdn-private','PRIVATE_UPSTREAM_CONTAINER','PRIVATE_API_TOKEN','PRIVATE_SESSION_SECRET','private-panel.test','admin.diamondcrew.net'])assert.equal(text.includes(privateValue),false);
  const result=JSON.parse(text);for(const id of ['controller-web','proxy-web','prismatic-dev-web'])assert.ok(result.webServices.some((s:any)=>s.id===id));for(const id of ['dia-01','prismatic-dev','diamond-dev'])assert.ok(result.servers.some((s:any)=>s.id===id));assert.equal(result.servers.find((s:any)=>s.id==='dia-01').name,'DIA-01');assert.equal(result.webServices.find((s:any)=>s.id==='controller-web').name,'DiamondCrew Interactive Server Controller');assert.equal(result.webServices.find((s:any)=>s.id==='proxy-web').name,'DiamondCrew Interactive Proxy Manager');for(const s of [...result.servers,...result.webServices])for(const key of Object.keys(s))assert.ok(['id','name','state','players','responseMs','response'].includes(key));assert.equal(result.webServices.find((s:any)=>s.id==='image-web').state,'ONLINE');assert.equal((await fetch(base+'/api/launcher')).status,404);
  }finally{await new Promise<void>(r=>server.close(()=>r()));}
+});
+
+
+test('Image launcher flag enables only its verified destination and leaves defaults immutable',()=>{
+ const disabled=launcherConfig(false,false),enabled=launcherConfig(false,true);
+ assert.deepEqual(disabled.services,enabled.services);
+ assert.deepEqual(disabled.infrastructureServices.find(s=>s.id==='images'),{...enabled.infrastructureServices.find(s=>s.id==='images'),enabled:false,status:'IN PROGRESS'});
+ assert.equal(enabled.infrastructureServices.find(s=>s.id==='images')?.url,'https://img.dcrp.cz/manage');
+ assert.equal(enabled.infrastructureServices.find(s=>s.id==='images')?.status,'OPERATIONAL');
+ assert.equal(launcherConfig(false,false).infrastructureServices.find(s=>s.id==='images')?.enabled,false);
+ const old=process.env.LAUNCHER_IMAGE_ENABLED;
+ try {for(const value of ['', 'false','TRUE','1']){process.env.LAUNCHER_IMAGE_ENABLED=value;assert.equal(launcherConfig(false).infrastructureServices[0].enabled,false);}process.env.LAUNCHER_IMAGE_ENABLED='true';assert.equal(launcherConfig(false).infrastructureServices[0].enabled,true);}
+ finally {if(old===undefined)delete process.env.LAUNCHER_IMAGE_ENABLED;else process.env.LAUNCHER_IMAGE_ENABLED=old;}
 });

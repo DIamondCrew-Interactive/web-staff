@@ -20,3 +20,10 @@ Apply the same STATUS_TARGETS/STATUS_WEB_TARGETS and maintenance settings to Sta
 Public Status and Staff return the same sanitized service schema, including DIA-01, Controller, Proxy and both DEV game entries. Infrastructure web services use full DiamondCrew Interactive product names; DIA-01 retains its name. No probe URLs, private IPs, API IDs/tokens, upstream payloads or container names are returned. Incident/maintenance text is intentionally operator-authored public content: do not place private details there. Both processes must have identical runtime targets; their independent caches and request times can produce temporary differences in readings.
 
 Node tests cover missing/unreachable sources, transitional game state, host independence, schema validation, public privacy and card switching. Browser tests check real rendered disabled cards, external destinations, status rendering, full brand and responsive layouts from320px. Network probes in tests use controlled mock responses; no live service-health assertion is made by test fixtures.
+
+
+## Image launcher activation
+
+`LAUNCHER_IMAGE_ENABLED` defaults to false. Only the exact string `true` enables the Image Service card, marks it OPERATIONAL and links to `https://img.dcrp.cz/manage`. This is an operator acceptance flag, not an automatic HTTP-health decision. Keep it false until public DNS, original media URL/byte preservation, management access and real central SSO are verified.
+
+For deployed Staff, first update the application image while preserving every field of `/etc/diamondcrew-staffcenter/runtime.compose.json`. Then separately set `LAUNCHER_IMAGE_ENABLED=true` in only the staffcenter service's private resolved runtime environment, review that one-field diff and recreate with the existing full Compose context. Changing `.env` alone does not update resolved environment. Roll back activation by restoring the prior flag value; this does not require changing the Image Service image or media. A Staff restart revokes its sessions. The launcher fetches `/api/launcher` every 60 seconds; reload to observe acceptance promptly.
