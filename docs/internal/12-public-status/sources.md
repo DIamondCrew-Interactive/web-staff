@@ -31,3 +31,8 @@ Neexistují demo counts, historie nebo vymyšlený uptime.
 ## Související návody
 
 [Kategorie a navazující návody](index.md)
+
+## Sdílený status od verze 1.3
+Staff a Public Status používají stejné STATUS_TARGETS a server-only STATUS_WEB_TARGETS. Bez zdroje je UNKNOWN; nedostupný explicitní web healthprobe je OFFLINE; explicitní údržba MAINTENANCE. HTTP200 z webového rootu není důkaz herního procesu ani host health. DIA-01 musí mít vlastní healthUrl a nezdědí stav jiné služby.
+
+Produkční herní STATUS_TARGETS je nyní prázdné a Pterodactyl API key není nastavený. Zobrazení herních serverů tedy zůstává UNKNOWN bez vymyšlených player counts. Mapování na skutečný resources endpoint doplň teprve po inventuře. Web targets lze nastavit pro ověřené veřejné domény; URLs a credentials se neposílají frontendům. Public varianta odfiltruje Controller/Proxy/DEV web rows i DEV game rows. Veřejné incident texty nesmějí obsahovat interní detaily.

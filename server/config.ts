@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import type { ServerId } from '../src/shared/types.js';
+import { readSsoClients, readPrivateFile } from './sso-config.js';
 
 export const serverCatalog: { id: ServerId; name: string }[] = [
   { id: 'prismatic-prod', name: 'Prismatic PROD' },
@@ -38,6 +39,11 @@ export const config = {
   discordRedirectUri: process.env.DISCORD_REDIRECT_URI || '',
   discordAllowedIds: new Set((process.env.DISCORD_ALLOWED_USER_IDS || '').split(',').map(s => s.trim()).filter(Boolean)),
   sessionSecret: process.env.SESSION_SECRET || '',
+  ssoEnabled: process.env.SSO_ENABLED === 'true',
+  ssoClients: process.env.SSO_ENABLED === 'true' ? readSsoClients(readPrivateFile(process.env.SSO_CLIENTS_FILE || ''), process.env.NODE_ENV === 'production') : [],
+  ssoPrivateKeyFile: process.env.SSO_PRIVATE_KEY_FILE || '',
+  ssoKeyId: process.env.SSO_KEY_ID || '',
+  ssoIssuer: process.env.SSO_ISSUER || 'https://staff.diamondcrew.net',
   pterodactylUrl: process.env.PTERODACTYL_URL ? validateUrl(process.env.PTERODACTYL_URL, true, true) : '',
   token: process.env.PTERODACTYL_CLIENT_API_KEY || '',
   targets: readTargets(process.env.STATUS_TARGETS),

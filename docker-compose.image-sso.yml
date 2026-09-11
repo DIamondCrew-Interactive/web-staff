@@ -1,0 +1,12 @@
+# Optional central SSO config, mounted only into Image Service. Base Compose keeps public serving available without SSO.
+services:
+  image-service:
+    environment:
+      IMAGE_SSO_CONFIG_FILE: /run/dci-image-sso/config.json
+    volumes:
+      - type: bind
+        source: ${IMAGE_SSO_CREDENTIAL_DIRECTORY:?Set absolute private Image SSO directory}
+        target: /run/dci-image-sso
+        read_only: true
+        bind:
+          create_host_path: false

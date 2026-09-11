@@ -10,7 +10,7 @@ tags: [images, cdn, media]
 # Konzistentní zálohy obrázků
 
 ## Rozsah
-Media volume, schválený commit/image digest a Compose. .env.image a Discord/session secrets zálohuj odděleně neveřejně; Cookbook je neobsahuje. Zálohu ukládej na jiný disk/host a testuj restore.
+Media volume, schválený commit/image digest a Compose. .env.image a privátní central SSO konfiguraci zálohuj odděleně neveřejně; Cookbook je neobsahuje. Zálohu ukládej na jiný disk/host a testuj restore.
 ## Záloha v Dockeru
 Příkazy spouštěj v deployment adresáři po potvrzení servisního okna; zastavení znamená výpadek i veřejného čtení. Vytvoř soukromý adresář mimo media root.
 ~~~bash

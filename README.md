@@ -2,13 +2,13 @@
 
 Veřejný rozcestník a status na `staff.diamondcrew.net`, Discord čtečka Cookbooku a samostatný `status.diamondcrew.net`. Bez Basic Auth, povinného hesla a fiktivních metrik. Repo: https://github.com/DIamondCrew-Interactive/web-staff.
 
-Základní Cookbook/OAuth verze je publikovaná jako `v1.1.0`. Nová homepage a Image Service jsou zatím pouze lokální; v rámci tohoto doplnění nic nebylo pushnuto ani nasazeno.
+Integrační kandidát `1.3.0` sjednocuje central Staff SSO, Image SSO, launcher a sdílený status. [Poznámky k verzi](docs/RELEASE-1.3.0.md) rozlišují ověřené lokální testy od produkčního nasazení. Produkční Docker gate a vydání Staff1.3.0 jsou samostatný krok.
 
 ## Nová homepage a Image Service
 
 Staff používá dodané assety v public/branding (beze změny originálů) a hlavní DiamondCrew logo. DEV karty mají žlutý diagonální pruh. Desktop grid 4×2, tablet 2 sloupce, mobile 1. Personalizované jméno/avatar pochází z Discordu; žádné falešné notifikace. Cookbook není na homepage: header Documentation se zobrazí jen allowlisted uživateli a vede na serverově chráněnou /docs.
 
-Infrastructure Image Service odkazuje na existující https://img.dcrp.cz (root HTTP200 ověřen 2026-09-11, healthz404; žádný domnělý live status). Nový management, API, Docker a migrace jsou popsány v [Image Service návodu](docs/IMAGE_SERVICE.md). Samostatný Compose docker-compose.image.yml nic nespouští na DIA-01 automaticky.
+Původní Image CDN https://img.dcrp.cz zůstává zachována; nová management karta je IN PROGRESS do ověření nasazení. Nový management, API, Docker a migrace jsou popsány v [Image Service návodu](docs/IMAGE_SERVICE.md). Samostatný Compose docker-compose.image.yml nic nespouští na DIA-01 automaticky.
 
 Nové entrypointy: src/image.tsx, server/image.ts, server/media/{app,storage}.ts, image.html, Dockerfile.image-service, .env.image.example. Přibyl audit offline médií scripts/audit-media.ts a 40 Cookbook stránek. Knihovna používá Multer a Sharp; public read / authorized write.
 
@@ -28,7 +28,7 @@ server/docs.ts                 autorizované i anonymní read-only API
 server/config.ts               server-only env, validace status targetů
 server/adapters.ts             Pterodactyl, FiveM, HTTP
 server/monitoring.ts           bezpečná veřejná projekce a cache
-docs/internal/                 22 kategorií, 327 Markdown stránek
+docs/internal/                 22 kategorií, 328 Markdown stránek
 scripts/validate-cookbook.ts    kontrola metadat, odkazů, fences a cest
 tests/                        backend, bezpečnost, prohlížeč
 ```
@@ -117,7 +117,7 @@ Bez zdroje UNKNOWN, žádná demo data. Odezva je naměřené trvání HTTP requ
 
 ## Cookbook
 
-22 kategorií / 327 stránek. Kategorie: Getting started; DIA nodes; Server Manager installation; Wings; FiveM; txAdmin; Nginx Proxy Manager; Web hosting; DNS/HTTPS; Cockpit; Staff Center; Public Status; Databases/Redis; Docker; Backups; Monitoring/Operations; Security; Server Manager User Guide; AI Runbooks; Troubleshooting; Disaster Recovery; Image Service / CDN.
+22 kategorií / 328 stránek. Kategorie: Getting started; DIA nodes; Server Manager installation; Wings; FiveM; txAdmin; Nginx Proxy Manager; Web hosting; DNS/HTTPS; Cockpit; Staff Center; Public Status; Databases/Redis; Docker; Backups; Monitoring/Operations; Security; Server Manager User Guide; AI Runbooks; Troubleshooting; Disaster Recovery; Image Service / CDN.
 
 Podrobné postupy pokrývají čistý Debian → Panel → Wings → test server → branding, nový game node, celou control plane, FiveM/txAdmin, Minecraft/Source server, Egg/Nest, web ze složky, Docker web za NPM, backup/restore a DIA-01 LOST. Inventář uvedený uživatelem je rozlišen od obecných požadavků a příkladů; neznámé údaje mají placeholder. Instalační příkazy nejsou automatický installer a nebyly spuštěny na DIA-01. Před použitím ověř cílový stav a verze podle přiložených primárních zdrojů.
 

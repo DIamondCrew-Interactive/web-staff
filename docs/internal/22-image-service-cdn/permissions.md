@@ -1,5 +1,5 @@
 ---
-title: "Oprávnění ke správě přes Discord"
+title: "Oprávnění ke správě přes central SSO"
 category: 22-image-service-cdn
 categoryTitle: "Image Service / CDN"
 order: 12
@@ -7,13 +7,13 @@ audience: [user, admin, ai]
 tags: [images, cdn, media]
 ---
 
-# Oprávnění ke správě přes Discord
+# Oprávnění ke správě přes central SSO
 
-## Veřejné čtení
-Obrázky nevyžadují login. Public root přesměruje na /manage shell a nezobrazuje inventory anonymně.
-## Správa s oprávněním
-Všechny /api/media GET i write routy vyžadují serverovou session a přesné ID v DISCORD_ALLOWED_USER_IDS. Write navíc X-CSRF-Token. Session 8 hodin, HttpOnly/Secure/SameSite=Lax v produkci, náhodný ID podepsaný SESSION_SECRET. Logout POST ruší session. Server Manager role ani Discord nickname nejsou oprávnění.
-## Nastavení
-Zaregistruj https://img.dcrp.cz/auth/discord/callback v Discord Developer Portal; doplň ID/Secret a allowlist do .env.image. Lze použít druhý redirect stejné aplikace nebo oddělenou aplikaci. Preferuj vlastní session secret pro tuto službu. Pro lokální vývoj callback http://localhost:3002/auth/discord/callback.
-## Výměna přístupových údajů
-Změna env vyžaduje recreate image-service a zruší sessions. Prázdné OAuth nastavení neblokuje image GET, ale správa se neodemkne. Žádný public admin token či write API key v browseru.
+## Explicitní přístup
+Po přijetí nového deploymentu vyžaduje /api/media serverovou Image session a numeric Discord ID uvedené v allowed_ids v privátním Image SSO configu. Totéž ID musí být povolené u audience image-service ve Staff brokeru. Žádná role se neodvozuje z nickname, Staff členství nebo JWT role claimu. Povolený manager může používat stávající mediální operace; read-only role zde není.
+
+## Přihlášení a odhlášení
+/auth/sso/start vytvoří browser-bound state a PKCE. Staff vrátí jednorázový opaque ticket, backend jej redeemuje a ověří Ed25519 JWT. Native Image cookie je HttpOnly/Secure/SameSite=Lax, životnost 1 hodina, writes a logout vyžadují X-CSRF-Token. Logout a restart ruší lokální session. Staff logout sám neruší již založenou Image session.
+
+## Konfigurace
+Privátní IMAGE_SSO_CONFIG_FILE obsahuje redeem_secret, verification_keys a allowed_ids. Image Service nemá Discord Client ID/Secret. Klíče ověřování jsou pouze veřejné; soukromý podpisový klíč je pouze ve Staff. Config mimo Git, runtime čtení pouze service účtem. Podrobně [central SSO](../17-security/central-sso.md). Produkční CDN zatím není migrovaná; nevydávej připravenou implementaci za nasazenou správu.

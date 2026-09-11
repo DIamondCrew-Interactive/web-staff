@@ -1,8 +1,9 @@
 import express from 'express';
+import { configureTrustedProxy } from '../trusted-proxy.js';
 import multer from 'multer';
 import { createHash } from 'node:crypto';
 import type { AppConfig } from '../config.js';
-import { createAuth } from '../auth.js';
+import { createImageAuth, readImageSsoConfig, type ImageSsoConfig } from './sso-auth.js';
 import type { Fetcher } from '../adapters.js';
 import { LocalStorageAdapter, MediaError, mediaPath, validatedImage, type StorageAdapter } from './storage.js';
 
@@ -13,12 +14,12 @@ export function imageConfig(): ImageConfig {
   if (!['http:', 'https:'].includes(origin.protocol) || origin.username || origin.password || origin.pathname !== '/' || origin.search || origin.hash) throw Error('Invalid IMAGE_PUBLIC_URL');
   return { root: process.env.IMAGE_STORAGE_ROOT || './.media', publicOrigin: origin.origin, maxUploadBytes: positive(process.env.IMAGE_MAX_UPLOAD_MB, 25, 100) * 1048576, maxBatchBytes: positive(process.env.IMAGE_MAX_BATCH_MB, 50, 200) * 1048576, maxFiles: positive(process.env.IMAGE_MAX_BATCH_FILES, 10, 25), cacheSeconds: positive(process.env.IMAGE_CACHE_SECONDS, 300, 86400) };
 }
-export async function createImageApp(c: AppConfig, media: ImageConfig, request: Fetcher = fetch, storage: StorageAdapter = new LocalStorageAdapter(media.root, media.publicOrigin)) {
+export async function createImageApp(c: Pick<AppConfig, 'production'>, media: ImageConfig, request: Fetcher = fetch, storage: StorageAdapter = new LocalStorageAdapter(media.root, media.publicOrigin), sso: ImageSsoConfig | null = readImageSsoConfig(), now = Date.now) {
   if (storage instanceof LocalStorageAdapter) await storage.initialize();
-  const app = express(); app.disable('x-powered-by');
+  const app = express(); configureTrustedProxy(app); app.disable('x-powered-by');
   app.use((_req, res, next) => { res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY', 'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: https://cdn.discordapp.com; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" }); next(); });
   app.get('/healthz', (_req, res) => res.json({ status: 'ok' }));
-  const auth = createAuth(c, request); auth.mount(app);
+  const auth = createImageAuth(c.production, sso, request, now); auth.mount(app);
   app.use('/api/media', auth.requireDocs, (req, res, next) => { res.set('Cache-Control', 'private, no-store'); if (['GET', 'HEAD'].includes(req.method)) next(); else auth.requireWrite(req, res, next); });
   // One mutation at a time, including multipart parsing, bounds upload memory and
   // prevents collision checks from racing another authorized writer in this process.

@@ -23,7 +23,7 @@ docker compose --env-file .env.image -f docker-compose.image.yml build
 docker compose --env-file .env.image -f docker-compose.image.yml up -d
 docker compose --env-file .env.image -f docker-compose.image.yml ps
 ~~~
-Před cp zachovej případný existující .env.image; nikdy jej nepřepiš příkladem. Doplníš Discord credentials/allowlist/SESSION_SECRET. IMAGE_PUBLIC_URL=https://img.dcrp.cz. Container používá /media bez ohledu na lokální příklad ./.media.
+Před cp zachovej případný existující .env.image; nikdy jej nepřepiš příkladem. Pro novou správu přidej privátní IMAGE_SSO_CONFIG_FILE přes docker-compose.image-sso.yml, veřejné verification_keys a explicitní allowed_ids. Discord credentials do Image nepatří. IMAGE_PUBLIC_URL=https://img.dcrp.cz. Container používá /media bez ohledu na lokální příklad ./.media.
 ## Trvalá data a zabezpečení
 Named volume diamondcrew-image-media, UID/GID1000, read-only root FS, tmpfs /tmp, no-new-privileges, žádné host porty, healthcheck3000, paměť1GiB. Volume nepřipojuj dalšímu writeru. NPM je ve stejné síti. Nový prázdný volume převezme vlastnictví /media z image; starý import ověř a nastav oprávnění při zastavené službě.
 ## Ověření a rollback

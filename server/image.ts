@@ -1,7 +1,9 @@
 import express from 'express';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { config } from './config.js';
+import 'dotenv/config';
+const config = {production: process.env.NODE_ENV === 'production', port: Number(process.env.PORT || 3000)};
+if (!Number.isInteger(config.port) || config.port < 1 || config.port > 65535) throw Error('Invalid Image Service port');
 import { createImageApp, imageConfig, mediaErrorHandler } from './media/app.js';
 const { app, publicFiles } = await createImageApp(config, imageConfig());
 app.get('/', (_req, res) => res.redirect('/manage'));

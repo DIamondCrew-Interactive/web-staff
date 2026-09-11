@@ -1,4 +1,4 @@
-// Browser test server only. Discord transport injection is never in production routes.
+// Browser test server only. Mock signing transport is never in production routes.
 import express from 'express';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -6,16 +6,15 @@ import { tmpdir } from 'node:os';
 import sharp from 'sharp';
 import { config } from '../../server/config.js';
 import { createImageApp, mediaErrorHandler } from '../../server/media/app.js';
-import type { Fetcher } from '../../server/adapters.js';
+import { mockImageBroker } from './image-broker.js';
 const root = await fs.mkdtemp(path.join(tmpdir(),'dc-media-browser-'));
 await fs.mkdir(path.join(root,'projects'));
 await fs.mkdir(path.join(root,'inventory/food'),{recursive:true});
 await fs.mkdir(path.join(root,'kostka'));
 await sharp('public/diamondcrew-logo.png').resize(400,400).png().toFile(path.join(root,'projects/diamondcrew.png'));
 await sharp('public/branding/prismatic.png').resize(400,400).png().toFile(path.join(root,'projects/prismatic.png'));
-const json = (value: unknown) => new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}});
-const transport: Fetcher = async input => String(input).includes('/token') ? json({token_type:'bearer',access_token:'browser-test'}) : json({id:'111111111111111111',username:'media-reviewer',global_name:'Media Reviewer'});
-const { app, publicFiles } = await createImageApp({...config,production:false,discordClientId:'333333333333333333',discordClientSecret:'browser-fixture-only',discordRedirectUri:'http://localhost:4314/auth/discord/callback',discordAllowedIds:new Set(['111111111111111111'])},{root,publicOrigin:'https://img.dcrp.cz',maxUploadBytes:25*1048576,maxBatchBytes:50*1048576,maxFiles:10,cacheSeconds:300},transport);
+const broker = mockImageBroker();
+const { app, publicFiles } = await createImageApp({...config,production:false},{root,publicOrigin:'https://img.dcrp.cz',maxUploadBytes:25*1048576,maxBatchBytes:50*1048576,maxFiles:10,cacheSeconds:300},broker.transport,undefined,broker.config);
 app.get('/',(_req,res)=>res.redirect('/manage'));
 app.use('/assets',express.static(path.resolve('dist/image/assets')));
 app.get('/diamondcrew-logo.png',(_req,res)=>res.sendFile(path.resolve('public/diamondcrew-logo.png')));

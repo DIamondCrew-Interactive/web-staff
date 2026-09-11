@@ -10,7 +10,7 @@ tags: [images, cdn, media]
 # Práce v rozhraní pro správu
 
 ## Přístup
-Otevři https://img.dcrp.cz/manage. Shell je veřejný, ale seznam i metadata vyžadují autorizovaný Discord účet. Nepovolený účet uvidí No internal access. Přihlášení nesdílí cookie se Staff Centerem: jde o jiný hostname.
+Po ověření nasazení nové správy otevři https://img.dcrp.cz/manage. Aktuální původní CDN ještě nemá prokázaný nový management. Shell nové aplikace je veřejný, ale seznam i metadata vyžadují přihlášení přes Staff Center a explicitní Image allowlist. Nepovolený účet nedostane Image session. Přihlášení nesdílí cookie se Staff Centerem: jde o jiný hostname.
 ## Navigace
 Kliknutí vybere soubor/složku a otevře detail. Dvojklik na složku nebo tlačítko Otevřít složku vstoupí dovnitř. Breadcrumbs vrací do rodičů. Vyhledávání prochází podstrom aktuální složky podle filename/path, max. 1000 výsledků a 5000 prohlédnutých položek. Při truncation otevři užší složku.
 ## Dostupné akce

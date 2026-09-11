@@ -3,11 +3,11 @@ test('Image Service real API flow: private listing, folders, upload, copy URL, r
   const errors:string[]=[]; page.on('pageerror',e=>errors.push(e.message));
   const base='http://127.0.0.1:4314';
   await page.goto(base+'/manage');
-  await expect(page.getByText('Pro správu obrázků se přihlas povoleným Discord účtem.')).toBeVisible();
+  await expect(page.getByText('Pro správu obrázků se přihlas přes Staff Center účtem s povoleným přístupem.')).toBeVisible();
   expect((await context.request.get(base+'/api/media')).status()).toBe(401);
-  const start=await context.request.get(base+'/auth/discord',{maxRedirects:0});
+  const start=await context.request.get(base+'/auth/sso/start',{maxRedirects:0});
   const state=new URL(start.headers().location).searchParams.get('state');
-  await context.request.get(`${base}/auth/discord/callback?code=fixture&state=${state}`,{maxRedirects:0});
+  await context.request.get(`${base}/auth/sso/callback?ticket=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&state=${state}`,{maxRedirects:0});
   await page.reload();
   await expect(page.getByRole('region',{name:'Media library'})).toBeVisible();
   await page.getByRole('button',{name:'Nová složka'}).click();

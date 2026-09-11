@@ -9,9 +9,11 @@ tags: [images, cdn, media]
 
 # Současné CDN: ověřené a chybějící údaje
 
-## Inventář
-Existující doména: https://img.dcrp.cz. Provozovatel uvádí jiný VPS než DIA-01. HTTP root při read-only ověření 2026-09-11 odpověděl 200, /healthz odpověděl 404. To není důkaz budoucí dostupnosti ani identity backendu. Staff karta je aktivní odkaz, ne zelený health claim.
-## Chybějící údaje
-IP = <cdn-server-ip>; media root = <cdn-web-root>; případné legacy admin přihlašování = <cdn-admin-secret>. Skutečné hodnoty získej neveřejně od správce. Neodvozuj filesystem z HTTP response ani nenastavuj DNS na DIA-01.
+## Ověřený rozsah
+Existující https://img.dcrp.cz stále provozuje původní CDN. Používané veřejné odkazy mají mimo jiné prefix /uploads/; tento prefix a všechny existující cesty musí zůstat zachované. Nová Node Image Service není na této doméně prokázaným managementem a migrace neproběhla. Staff karta zůstává neklikatelné IN PROGRESS. HTTP200 z veřejného rootu nepotvrzuje existenci nové správy.
+
+## Neveřejný inventář
+Adresa hostu, SSH přístup, webroot, mounty a credential materiál jsou v provozním inventáři správce. Veřejný Cookbook tyto údaje nepotřebuje. Neodvozuj filesystem z HTTP odpovědi a nepřesměrovávej doménu na jiný uzel bez ověřené migrace.
+
 ## Další kroky
-Potvrď vlastnictví VPS, způsob SSH přístupu, web config, mounty, seznam používaných URL, storage velikost a zapisující klienty. Výpisy před sdílením rediguj. Poté použij [migration](migration.md). Legacy admin secret nová aplikace nepoužívá: management používá Discord.
+Potvrď všechny používané URL, objem dat a zapisující klienty. Před změnou zachovej zálohu a checksumy, otestuj staging včetně /uploads/ cest a proveď postup z [migrace](migration.md). Nová správa používá central Staff SSO s odděleným Image allowlistem; původní CDN přihlášení se automaticky nepřenáší.

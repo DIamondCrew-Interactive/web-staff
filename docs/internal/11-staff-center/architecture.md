@@ -15,7 +15,7 @@ Veřejný web funguje bez Discordu.
 
 ## Kde a jak běží
 
-Veřejný 4×2 rozcestník; Discord povoluje Cookbook UI na samostatné /docs. Homepage Cookbook nevykresluje. Header Documentation je viditelný jen allowlisted účtu. Express na 3000 za NPM. Infrastructure sekce odkazuje na Image Service na jiném VPS.
+Veřejný 4×2 rozcestník; Discord povoluje Cookbook UI na samostatné /docs. Homepage Cookbook nevykresluje. Header Documentation je viditelný jen allowlisted účtu. Express na 3000 za NPM. Image Service management zůstává IN PROGRESS do přijetí deploymentu; veřejná distribuce médií na původní CDN pokračuje. Controller je aktivní, Proxy se aktivuje runtime flagem po přijetí nasazení.
 
 ## Postup
 

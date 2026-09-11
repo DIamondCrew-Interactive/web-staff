@@ -1,0 +1,17 @@
+# Enable only with: docker compose -f docker-compose.yml -f docker-compose.sso.yml up -d staffcenter
+# Host directory must already exist, owned by runtime uid 1000, mode 0700.
+services:
+  staffcenter:
+    environment:
+      SSO_ENABLED: "true"
+      SSO_CLIENTS_FILE: /run/dci-sso/clients.json
+      SSO_PRIVATE_KEY_FILE: /run/dci-sso/signing.pem
+      SSO_KEY_ID: ${SSO_KEY_ID:?Set a unique key id}
+      SSO_ISSUER: https://staff.diamondcrew.net
+    volumes:
+      - type: bind
+        source: ${SSO_CREDENTIAL_DIRECTORY:?Set absolute private credential directory}
+        target: /run/dci-sso
+        read_only: true
+        bind:
+          create_host_path: false

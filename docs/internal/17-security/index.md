@@ -13,6 +13,7 @@ tags: ["index","17-security"]
 Nejnižší nutná oprávnění, ochrana secrets a veřejně bezpečný read-only Cookbook.
 
 ## Návody v této kategorii
+- [Central SSO: provoz a omezení](central-sso.md)
 - [Práce s citlivými údaji](secrets.md)
 - [Přihlášení do rozhraní a přístup AI](access-model.md)
 - [Minimální potřebná oprávnění](least-privilege.md)

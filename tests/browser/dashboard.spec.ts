@@ -7,16 +7,19 @@ test('staff is public, simple, responsive and disabled tiles cannot launch', asy
   const response = await page.goto('http://127.0.0.1:4310');
   expect(response?.status()).toBe(200);
   await expect(page.locator('.launch-card')).toHaveCount(8);
-  await expect(page.locator('.launch-card.disabled')).toHaveCount(6);
+  await expect(page.locator('.launch-card.disabled')).toHaveCount(4);
   await expect(page.locator('.launch-card.disabled a, .launch-card.disabled button, .launch-card.disabled .launch-arrow')).toHaveCount(0);
   await expect(page.locator('a.card-manager')).toHaveAttribute('href', 'https://panel.diamondcrew.net');
   await expect(page.locator('a.card-status')).toHaveAttribute('href', 'https://status.diamondcrew.net');
-  await expect(page.locator('a.card-images')).toHaveAttribute('href', 'https://img.dcrp.cz');
+  await expect(page.locator('a.card-controller')).toHaveAttribute('href', 'https://admin.diamondcrew.net');
+  await expect(page.locator('a.card-prismatic-dev')).toHaveAttribute('href', 'https://tx-dev.pmrp.cz');
+  await expect(page.locator('a.card-images')).toHaveCount(0);
+  await expect(page.locator('.card-images')).toHaveAttribute('aria-disabled', 'true');
   await expect(page.locator('.card-prismatic-prod img')).toHaveAttribute('src', '/branding/prismatic.png');
   await expect(page.locator('.card-diamond-prod img')).toHaveAttribute('src', '/branding/dcrp.svg');
   await expect(page.locator('.dev-ribbon')).toHaveCount(2);
-  await expect(page.locator('.status-row')).toHaveCount(6);
-  await expect(page.locator('.dot-unknown')).toHaveCount(6);
+  await expect(page.locator('.status-row')).toHaveCount(13);
+  await expect(page.locator('.dot-unknown')).toHaveCount(13);
   await expect(page.getByRole('link', { name: 'Documentation' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Login with Discord' })).toBeDisabled();
   await expect(page.getByRole('heading', { name: 'Infrastructure Cookbook' })).toHaveCount(0);
@@ -35,10 +38,10 @@ test('staff is public, simple, responsive and disabled tiles cannot launch', asy
 test('pure status is public and has no tool grid or docs', async ({ page, request }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   expect((await page.goto('http://127.0.0.1:4311'))?.status()).toBe(200);
-  await expect(page.locator('.status-card')).toHaveCount(4);
+  await expect(page.locator('.status-card')).toHaveCount(8);
   await expect(page.locator('.tile')).toHaveCount(0);
   expect((await request.get('http://127.0.0.1:4311/api/internal/docs')).status()).toBe(404);
-  await expect(page.locator('.summary-unknown strong')).toHaveText('4');
+  await expect(page.locator('.summary-unknown strong')).toHaveText('8');
   await expect(page.locator('.summary-online strong')).toHaveText('0');
   await page.setViewportSize({ width: 1320, height: 1100 });
   await page.screenshot({ path: '.artifacts/status-redesign-desktop.png', fullPage: true });
@@ -52,12 +55,11 @@ test('pure status is public and has no tool grid or docs', async ({ page, reques
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: '.artifacts/status-redesign-mobile.png', fullPage: true });
   const snapshot = await (await request.get('http://127.0.0.1:4311/api/public/status')).json();
-  snapshot.servers.forEach((s: any, i: number) => { s.state = ['ONLINE', 'OFFLINE', 'DEGRADED', 'MAINTENANCE'][i]; s.responseMs = i === 0 ? 24 : null; s.response = 'OK'; });
+  [...snapshot.servers,...snapshot.webServices].forEach((s: any, i: number) => { s.state = ['ONLINE', 'OFFLINE', 'UNKNOWN', 'MAINTENANCE'][i % 4]; s.responseMs = i === 0 ? 24 : null; s.response = 'OK'; });
   snapshot.incident = { title: 'Test incident', message: 'Fixture only' };
   await page.route('**/api/public/status', route => route.fulfill({ json: snapshot }));
   await page.getByRole('button', { name: 'Aktualizovat stav' }).click();
-  for (const state of ['online','offline','degraded','maintenance']) await expect(page.locator(`.summary-${state} strong`)).toHaveText('1');
-  await expect(page.locator('.summary-unknown strong')).toHaveText('0');
+  for (const state of ['online','offline','unknown','maintenance']) await expect(page.locator(`.summary-${state} strong`)).toHaveText('2');
   await expect(page.getByRole('heading', { name: 'Probíhá údržba' })).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('Test incident');
   await page.route('**/api/public/status', route => route.fulfill({ status: 503, body: '{}' }));
@@ -69,7 +71,7 @@ test('pure status is public and has no tool grid or docs', async ({ page, reques
 test('OAuth configuration activates login and public maintenance remains visible', async ({ page, request }) => {
   await page.goto('http://127.0.0.1:4312');
   await expect(page.getByRole('link', { name: 'Login with Discord' })).toHaveAttribute('href', '/auth/discord');
-  await expect(page.locator('.dot-maintenance')).toHaveCount(6);
+  await expect(page.locator('.dot-maintenance')).toHaveCount(13);
   await expect(page.getByRole('alert')).toContainText('Connection issues');
   expect((await request.get('http://127.0.0.1:4312/api/internal/docs')).status()).toBe(401);
   for (const variant of ['staff', 'public', 'image']) {

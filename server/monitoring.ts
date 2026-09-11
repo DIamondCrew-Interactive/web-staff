@@ -1,8 +1,9 @@
 import { config, serverCatalog, type AppConfig } from './config.js';
+import { readWebTargets, readWebStatus, type WebTarget } from './web-status.js';
 import { readStatus, type Fetcher } from './adapters.js';
 import type { PublicSnapshot } from '../src/shared/types.js';
 
-export function createMonitor(c: AppConfig = config, request: Fetcher = fetch) {
+export function createMonitor(c: AppConfig = config, request: Fetcher = fetch, webTargets: WebTarget[] = readWebTargets()) {
   let cache: PublicSnapshot | null = null;
   let pending: Promise<PublicSnapshot> | null = null;
   return async (): Promise<PublicSnapshot> => {
@@ -14,7 +15,7 @@ export function createMonitor(c: AppConfig = config, request: Fetcher = fetch) {
         // Explicit public projection; never return target objects, URLs, identifiers or upstream JSON.
         return { id: s.id, name: s.name, state: result.state, players: result.players, responseMs: result.responseMs, response: result.response };
       }));
-      return { servers, updatedAt: new Date().toISOString(), incident: c.incidentTitle ? { title: c.incidentTitle, message: c.incidentMessage } : null,
+      return { servers, webServices: await readWebStatus(webTargets,c.maintenance,request), updatedAt: new Date().toISOString(), incident: c.incidentTitle ? { title: c.incidentTitle, message: c.incidentMessage } : null,
         maintenance: { active: c.maintenance, message: c.maintenance ? c.maintenanceMessage : 'No scheduled maintenance.' } };
     })();
     try { cache = await pending; return cache; } finally { pending = null; }

@@ -20,6 +20,7 @@ services:
       - media:/media
     environment:
       NODE_ENV: production
+      TRUST_PROXY_CIDRS: ${TRUST_PROXY_CIDRS:-}
       PORT: 3000
       IMAGE_STORAGE_ROOT: /media
       IMAGE_PUBLIC_URL: ${IMAGE_PUBLIC_URL:-https://img.dcrp.cz}
@@ -27,11 +28,6 @@ services:
       IMAGE_MAX_BATCH_MB: ${IMAGE_MAX_BATCH_MB:-50}
       IMAGE_MAX_BATCH_FILES: ${IMAGE_MAX_BATCH_FILES:-10}
       IMAGE_CACHE_SECONDS: ${IMAGE_CACHE_SECONDS:-300}
-      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
-      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
-      DISCORD_REDIRECT_URI: ${DISCORD_REDIRECT_URI:-https://img.dcrp.cz/auth/discord/callback}
-      DISCORD_ALLOWED_USER_IDS: ${DISCORD_ALLOWED_USER_IDS:-}
-      SESSION_SECRET: ${SESSION_SECRET:-}
     networks: [proxy]
     logging:
       driver: json-file

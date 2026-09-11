@@ -148,5 +148,5 @@ test('monitoring projects only safe data and adapters never fabricate metrics', 
   assert.equal((await readStatus({ id: 'minecraft', maintenance: true }, c, failed)).state, 'MAINTENANCE');
   assert.throws(() => readTargets('[{"id":"dia-01","healthUrl":"https://user:password@example.test"}]'));
   assert.throws(() => readTargets('[{"id":"not-allowed"}]'));
-  assert.deepEqual(services.filter(s => s.enabled).map(s => s.id), ['manager', 'status']);
+  assert.deepEqual(services.filter(s => s.enabled).map(s => s.id), ['manager', 'controller', 'prismatic-dev', 'status']);
 });

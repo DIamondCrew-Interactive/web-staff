@@ -15,7 +15,7 @@ export async function pterodactylStatus(id: string, c: AppConfig, request: Fetch
     const data = await res.json();
     const state = data?.attributes?.current_state;
     if (!['running', 'offline', 'starting', 'stopping'].includes(state)) return unavailable();
-    return { state: state === 'running' ? 'ONLINE' : state === 'offline' ? 'OFFLINE' : 'DEGRADED', players: null, responseMs: Math.round(performance.now() - start), response: 'OK' };
+    return { state: state === 'running' ? 'ONLINE' : state === 'offline' ? 'OFFLINE' : 'UNKNOWN', players: null, responseMs: Math.round(performance.now() - start), response: 'OK' };
   } catch { return unavailable(); }
 }
 export async function fivemStatus(origin: string, request: Fetcher = fetch): Promise<Probe> {
@@ -39,6 +39,8 @@ export async function httpStatus(url: string, request: Fetcher = fetch): Promise
 export async function readStatus(target: StatusTarget | undefined, c: AppConfig, request: Fetcher = fetch): Promise<Probe> {
   if (c.maintenance || target?.maintenance) return { state: 'MAINTENANCE', players: null, responseMs: null, response: 'NOT CONFIGURED' };
   if (!target) return { ...unavailable(), response: 'NOT CONFIGURED' };
+  // Host health is independent of game/container state and unrelated web availability.
+  if (target.id === 'dia-01') return target.healthUrl ? httpStatus(target.healthUrl, request) : {...unavailable(), response:'NOT CONFIGURED'};
   // Pterodactyl is authoritative when configured; FiveM may supplement player count.
   const [panel, fivem, http] = await Promise.all([
     target.pterodactylId ? pterodactylStatus(target.pterodactylId, c, request) : null,
