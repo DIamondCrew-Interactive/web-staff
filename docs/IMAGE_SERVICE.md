@@ -70,3 +70,9 @@ Použij skutečný existující sample filename. Ověř allowed/denied login, lo
 ## Podklady
 
 [Discord User resource](https://docs.discord.com/developers/resources/user), [Multer](https://expressjs.com/en/resources/middleware/multer/), [Sharp image decoder](https://sharp.pixelplumbing.com/api-constructor/).
+
+## Názvy souborů a transport
+
+Cesty zachovávají Unicode písmena a kombinující značky i apostrof bez normalizace nebo přejmenování. Segment začíná písmenem nebo ASCII číslicí; další znaky mohou být písmena/značky, ASCII číslice, podtržítko, tečka, pomlčka a apostrof. Limit je 128 Unicode code points a 255 UTF-8 bytes na segment. Řídicí a výchozí ignorované Unicode znaky, traversal, symlinky a rezervovaná jména zůstávají zakázané. Audit používá stejnou funkci mediaPath jako běžící služba.
+
+Management UI odesílá multipart filename jako encodeURIComponent původního názvu; backend dekóduje právě jednou a validuje. Stejný transport použij v API klientovi pro Unicode názvy. API path/query/JSON parametry používají běžné URL/JSON kódování. Public URL kóduje každý segment včetně apostrofu jako %27; server umí také původní neescapovaný apostrof. Názvy na disku a obsah obrázků se nemění.

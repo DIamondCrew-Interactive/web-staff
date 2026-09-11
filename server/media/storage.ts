@@ -12,7 +12,7 @@ export function mediaPath(value: unknown, rootAllowed = false): string {
   if (typeof value !== 'string' || value.length > 600) return fail();
   if (!value && rootAllowed) return '';
   const parts = value.split('/');
-  if (parts.length > 16 || parts.some(p => !/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/.test(p) || p.includes('..') || p.endsWith('.') || /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(?:\.|$)/i.test(p))) return fail();
+  if (parts.length > 16 || parts.some(p => !/^[\p{L}0-9][\p{L}\p{M}0-9_.'-]{0,127}$/u.test(p) || /\p{Default_Ignorable_Code_Point}/u.test(p) || Buffer.byteLength(p, 'utf8') > 255 || p.includes('..') || p.endsWith('.') || /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(?:\.|$)/i.test(p))) return fail();
   if (['api', 'auth', 'manage', 'healthz', 'assets', 'branding', 'robots.txt', 'diamondcrew-logo.png'].includes(parts[0].toLowerCase())) return fail('Reserved top-level path');
   return value;
 }
@@ -52,7 +52,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
     return current;
   }
-  getPublicUrl(target: string) { return `${this.publicOrigin}/${mediaPath(target).split('/').map(encodeURIComponent).join('/')}`; }
+  getPublicUrl(target: string) { return `${this.publicOrigin}/${mediaPath(target).split('/').map(segment => encodeURIComponent(segment).replaceAll("'", '%27')).join('/')}`; }
   async stat(target: string): Promise<MediaEntry> {
     const absolute = await this.resolve(target), s = await fs.lstat(absolute);
     if (!s.isFile() && !s.isDirectory()) fail();

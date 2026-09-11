@@ -68,12 +68,15 @@ export async function createImageApp(c: Pick<AppConfig, 'production'>, media: Im
     const names = new Set<string>(), prepared: { target: string; data: Buffer }[] = [];
     const overwrite = req.query.overwrite === 'true';
     for (const file of files) {
-      if (file.originalname.includes('/')) throw new MediaError(400, 'Upload filename must not contain a path');
-      const target = parameter(folder ? `${folder}/${file.originalname}` : file.originalname);
+      // ASCII percent-encoded filename transport avoids multipart Latin-1 decoding.
+      let filename: string;
+      try { filename = decodeURIComponent(file.originalname); } catch { throw new MediaError(400, 'Invalid upload filename encoding'); }
+      if (filename.includes('/')) throw new MediaError(400, 'Upload filename must not contain a path');
+      const target = parameter(folder ? `${folder}/${filename}` : filename);
       if (names.has(target.toLowerCase())) throw new MediaError(409, 'Duplicate filenames in batch'); names.add(target.toLowerCase());
-      try { const existing = await storage.stat(target); if (!overwrite || existing.kind !== 'file') throw new MediaError(409, `File exists: ${file.originalname}. Rename or confirm overwrite.`); }
+      try { const existing = await storage.stat(target); if (!overwrite || existing.kind !== 'file') throw new MediaError(409, `File exists: ${filename}. Rename or confirm overwrite.`); }
       catch(e) { if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e; }
-      prepared.push({ target, data: await validatedImage(file.buffer, file.originalname, file.mimetype, media.maxUploadBytes) });
+      prepared.push({ target, data: await validatedImage(file.buffer, filename, file.mimetype, media.maxUploadBytes) });
     }
     const results = [];
     // Validation/collision failures write nothing. Disk failure may leave a partial batch;

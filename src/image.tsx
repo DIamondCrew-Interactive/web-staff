@@ -40,7 +40,7 @@ function App() {
   async function upload() {
     if (!files.length) return;
     await execute(async () => {
-      const data = new FormData(); for (const file of files) data.append('files', file);
+      const data = new FormData(); for (const file of files) data.append('files', file, encodeURIComponent(file.name));
       const result = await write(`/api/media/upload?${new URLSearchParams({ path: folder, overwrite: String(overwrite) })}`, 'POST', data);
       setNotice(`Nahráno ${result.entries.length} obrázků.`); setSelected(result.entries[0]); setFiles([]); setOverwrite(false); if (input.current) input.current.value = '';
     });

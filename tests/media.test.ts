@@ -29,7 +29,7 @@ async function fixture(limits: Partial<ImageConfig> = {}) {
   const headers = { Cookie: cookie, 'X-CSRF-Token': session.csrfToken };
   const call = (endpoint: string, method = 'GET', body?: unknown, custom = headers) => fetch(base + endpoint, { method, headers: { ...custom, ...(body ? { 'Content-Type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
   const upload = (names: string[], folder = '', options: { data?: Buffer; mime?: string; overwrite?: boolean } = {}) => {
-    const data = new FormData(); for (const name of names) data.append('files', new Blob([new Uint8Array(options.data || png)], { type: options.mime || 'image/png' }), name);
+    const data = new FormData(); for (const name of names) data.append('files', new Blob([new Uint8Array(options.data || png)], { type: options.mime || 'image/png' }), encodeURIComponent(name));
     return fetch(`${base}/api/media/upload?${new URLSearchParams({ path: folder, overwrite: String(options.overwrite || false) })}`, { method: 'POST', headers, body: data });
   };
   return { root, base, headers, call, upload, close: async () => { await new Promise<void>(r => server.close(() => r())); assert.ok(path.resolve(root).startsWith(path.resolve(tmpdir()) + path.sep + 'dc-media-test-')); await fs.rm(root, { recursive: true }); } };
@@ -123,4 +123,27 @@ test('traversal, encoded/absolute paths and symlink escapes are rejected', async
       const status = await new Promise<number>((resolve,reject) => { const req=httpRequest(f.base,{path:'/'+target},res=>{res.resume();resolve(res.statusCode!);});req.on('error',reject);req.end(); }); assert.equal(status,400);
     }
   } finally { await fs.unlink(path.join(outside,'secret.png')); await fs.rmdir(outside); await f.close(); }
+});
+
+test('legacy Unicode and apostrophe paths preserve bytes through public URLs, management and audit', async () => {
+ const f=await fixture(), names=["at_muzzle_precision'.png",'obrázek_2026-05-18_222909787.png','obra\u0301zek.png'];
+ try {
+  await fs.mkdir(path.join(f.root,'uploads'));for(const name of names)await fs.writeFile(path.join(f.root,'uploads',name),png);
+  const listing=await(await f.call('/api/media?path=uploads')).json();assert.deepEqual(listing.entries.map((e:any)=>e.name).sort(),[...names].sort());
+  for(const e of listing.entries){assert.equal(mediaPath(e.path),e.path);assert.equal(decodeURIComponent(new URL(e.publicUrl).pathname.slice(1)),e.path);if(e.name.includes("'"))assert.ok(e.publicUrl.includes('%27'));const response=await fetch(f.base+new URL(e.publicUrl).pathname);assert.equal(response.status,200);assert.deepEqual(Buffer.from(await response.arrayBuffer()),png);assert.equal((await f.call('/api/media/info?'+new URLSearchParams({path:e.path}))).status,200);}
+  const source='uploads/'+names[1],target="uploads/kopie_obrázku'.png";assert.equal((await f.call('/api/media/copy','PATCH',{source,target})).status,200);assert.equal((await f.call('/api/media/rename','PATCH',{source:target,target:"uploads/přejmenovaný'.png"})).status,200);
+  const {execFile}=await import('node:child_process');const {promisify}=await import('node:util');const audit=await promisify(execFile)(process.execPath,['--import','tsx','scripts/audit-media.ts',f.root]);assert.equal(JSON.parse(audit.stderr.trim()).files,4);for(const name of names){assert.ok(audit.stdout.includes('uploads/'+name));assert.deepEqual(await fs.readFile(path.join(f.root,'uploads',name)),png);}
+ }finally{await f.close();}
+});
+test('Unicode path support keeps traversal, controls, invisible characters and metacharacters rejected',()=>{
+ for(const name of ['../x.png','uploads/../x.png','uploads/a..png','uploads/a\\b.png','uploads/a%2fb.png','uploads/a;b.png','uploads/a$b.png','uploads/a`b.png','uploads/a"b.png','uploads/<a>.png','uploads/a\u0000.png','uploads/a\n.png','uploads/a\u202e.png','uploads/a\u200d.png','uploads/a\u034f.png','uploads/\u0301a.png','uploads/a.png.','uploads/CON.png','uploads/'+'界'.repeat(86)+'.png'])assert.throws(()=>mediaPath(name),name);
+ for(const value of ['uploads/obrázek.png','uploads/obra\u0301zek.png'])assert.equal(mediaPath(value),value);
+});
+
+test('multipart uploads preserve Unicode and apostrophe filenames',async()=>{
+ const f=await fixture();try{const names=["at_muzzle_precision'.png",'obrázek_2026-05-18_222909787.png'];const response=await f.upload(names);assert.equal(response.status,201);assert.deepEqual((await response.json()).entries.map((e:any)=>e.name),names);}finally{await f.close();}
+});
+
+test('multipart filename decoding rejects malformed, nested encoding and encoded traversal',async()=>{
+ const f=await fixture();try{for(const name of ['%','%2E%2E%2Fescape.png','a%252fb.png','a%00.png']){const form=new FormData();form.append('files',new Blob([new Uint8Array(png)],{type:'image/png'}),name);assert.equal((await fetch(f.base+'/api/media/upload',{method:'POST',headers:f.headers,body:form})).status,400);}assert.deepEqual((await(await f.call('/api/media')).json()).entries,[]);}finally{await f.close();}
 });
