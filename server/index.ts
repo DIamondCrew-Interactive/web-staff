@@ -9,14 +9,14 @@ const html = config.variant === "public" ? "public.html" : "index.html";
 if (config.production) {
   const root = path.resolve(`dist/${config.variant}`);
   app.use(express.static(root, { index: false }));
-  app.get("/", (_req, res) => res.sendFile(path.join(root, html)));
+  app.get(config.variant === 'staff' ? ['/', '/docs'] : '/', (_req, res) => res.sendFile(path.join(root, html)));
 } else {
   const { createServer } = await import("vite");
   const vite = await createServer({
     server: { middlewareMode: true, fs: { strict: true, deny: ['.env', '.env.*', '**/*.{crt,pem,key}', '**/.git/**', '**/docs/**', '**/server/**', '**/tests/**', '**/.artifacts/**'] } },
     appType: "custom",
   });
-  app.get("/", async (req, res) =>
+  app.get(config.variant === 'staff' ? ['/', '/docs'] : '/', async (req, res) =>
     res
       .type("html")
       .send(

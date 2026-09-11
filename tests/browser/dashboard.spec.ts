@@ -3,28 +3,32 @@ import { mkdir, readdir, readFile } from 'node:fs/promises';
 
 test('staff is public, simple, responsive and disabled tiles cannot launch', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
-  await page.setViewportSize({ width: 1440, height: 1050 });
+  await page.setViewportSize({ width: 1536, height: 1100 });
   const response = await page.goto('http://127.0.0.1:4310');
   expect(response?.status()).toBe(200);
-  await expect(page.locator('.tile')).toHaveCount(7);
-  await expect(page.locator('.tile.disabled')).toHaveCount(6);
-  await expect(page.locator('.tile.disabled a')).toHaveCount(0);
-  await expect(page.locator('a.tile')).toHaveAttribute('href', 'https://panel.diamondcrew.net');
-  await expect(page.locator('.status-card')).toHaveCount(6);
-  await expect(page.locator('.state-unknown')).toHaveCount(6);
+  await expect(page.locator('.launch-card')).toHaveCount(8);
+  await expect(page.locator('.launch-card.disabled')).toHaveCount(6);
+  await expect(page.locator('.launch-card.disabled a, .launch-card.disabled button, .launch-card.disabled .launch-arrow')).toHaveCount(0);
+  await expect(page.locator('a.card-manager')).toHaveAttribute('href', 'https://panel.diamondcrew.net');
+  await expect(page.locator('a.card-status')).toHaveAttribute('href', 'https://status.diamondcrew.net');
+  await expect(page.locator('a.card-images')).toHaveAttribute('href', 'https://img.dcrp.cz');
+  await expect(page.locator('.card-prismatic-prod img')).toHaveAttribute('src', '/branding/prismatic.png');
+  await expect(page.locator('.card-diamond-prod img')).toHaveAttribute('src', '/branding/dcrp.svg');
+  await expect(page.locator('.dev-ribbon')).toHaveCount(2);
+  await expect(page.locator('.status-row')).toHaveCount(6);
+  await expect(page.locator('.dot-unknown')).toHaveCount(6);
+  await expect(page.getByRole('link', { name: 'Documentation' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Login with Discord' })).toBeDisabled();
   await expect(page.getByRole('heading', { name: 'Infrastructure Cookbook' })).toHaveCount(0);
   await mkdir('.artifacts', { recursive: true });
-  await page.screenshot({ path: '.artifacts/staff-simple-desktop.png', fullPage: true });
-  for (const width of [390, 320]) {
+  await page.screenshot({ path: '.artifacts/staff-launcher-desktop.png', fullPage: true });
+  for (const [width, columns] of [[1536,4],[820,2],[390,1],[320,1]]) {
     await page.setViewportSize({ width, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(await page.locator('.launcher-grid').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(columns);
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: '.artifacts/staff-simple-mobile.png', fullPage: true });
-  await page.route('**/api/public/status', route => route.fulfill({ status: 503, body: '{}' }));
-  await page.getByRole('button', { name: 'Refresh status' }).click();
-  await expect(page.getByRole('alert')).toContainText('out of date');
+  await page.screenshot({ path: '.artifacts/staff-launcher-mobile.png', fullPage: true });
   expect(errors).toEqual([]);
 });
 
@@ -41,10 +45,10 @@ test('pure status is public and has no tool grid or docs', async ({ page, reques
 test('OAuth configuration activates login and public maintenance remains visible', async ({ page, request }) => {
   await page.goto('http://127.0.0.1:4312');
   await expect(page.getByRole('link', { name: 'Login with Discord' })).toHaveAttribute('href', '/auth/discord');
-  await expect(page.locator('.state-maintenance')).toHaveCount(6);
+  await expect(page.locator('.dot-maintenance')).toHaveCount(6);
   await expect(page.getByRole('alert')).toContainText('Connection issues');
   expect((await request.get('http://127.0.0.1:4312/api/internal/docs')).status()).toBe(401);
-  for (const variant of ['staff', 'public']) {
+  for (const variant of ['staff', 'public', 'image']) {
     const files = await readdir(`dist/${variant}/assets`);
     const bundle = (await Promise.all(files.map(file => readFile(`dist/${variant}/assets/${file}`, 'utf8')))).join('');
     for (const secret of ['BUNDLE-SECRET-SENTINEL', '111111111111111111', 'DISCORD_CLIENT_SECRET', 'DISCORD_ALLOWED_USER_IDS', 'INTERNAL-DOC-SENTINEL', 'docs/internal']) expect(bundle).not.toContain(secret);
@@ -53,11 +57,12 @@ test('OAuth configuration activates login and public maintenance remains visible
 
 test('Cookbook reader searches real guides, navigates on mobile and hides on sign out', async ({ page, request, context }) => {
   let authorized = false;
-  await page.route('**/api/session', route => route.fulfill({ json: { authenticated: true, internalAccess: authorized, loginAvailable: true, user: { username: 'test-user' }, csrfToken: 'test-fixture' } }));
+  await page.route('**/api/session', route => route.fulfill({ json: { authenticated: true, internalAccess: authorized, loginAvailable: true, user: { username: 'test-user', displayName: 'Test Crew', avatarUrl: '/diamondcrew-logo.png' }, csrfToken: 'test-fixture' } }));
   await page.goto('http://127.0.0.1:4310');
   await expect(page.getByText('No internal access', { exact: true })).toBeVisible();
   await expect(page.locator('.documentation')).toHaveCount(0);
-  await expect(page.locator('.tile')).toHaveCount(7);
+  await expect(page.locator('.launch-card')).toHaveCount(8);
+  await expect(page.getByRole('heading', { name: 'Vítej, Test Crew!' })).toBeVisible();
   authorized = true;
   await page.route('**/api/internal/docs/**', async route => {
     const url = route.request().url().replace('/api/internal/docs/', '/api/cookbook/');
@@ -67,9 +72,14 @@ test('Cookbook reader searches real guides, navigates on mobile and hides on sig
     await route.fulfill({ json });
   });
   await page.reload();
+  await expect(page.getByRole('link', { name: 'Documentation' })).toHaveAttribute('href', '/docs');
+  await expect(page.locator('.documentation')).toHaveCount(0);
+  // Only the UI fixture supplies a docs shell; real /docs auth is tested at the server.
+  await page.route('**/docs', async route => route.fulfill({ response: await request.get('http://127.0.0.1:4310/') }));
+  await page.getByRole('link', { name: 'Documentation' }).click();
   await page.setViewportSize({ width: 1440, height: 1050 });
   await expect(page.getByRole('heading', { name: 'Infrastructure Cookbook', exact: true })).toBeVisible();
-  await expect(page.locator('.category-toggle')).toHaveCount(21);
+  await expect(page.locator('.category-toggle')).toHaveCount(22);
   await expect(page.locator('.markdown h1')).toBeVisible();
   await page.getByRole('textbox', { name: 'Search Cookbook' }).fill('Wings');
   await page.getByLabel('Cookbook search filter').selectOption('ai');

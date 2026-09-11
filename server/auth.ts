@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction, Express } from 'express';
 import { loginAvailable, type AppConfig } from './config.js';
 import type { Fetcher } from './adapters.js';
 
-interface Identity { id: string; username: string }
+interface Identity { id: string; username: string; displayName?: string; avatarUrl?: string }
 interface Session { user: Identity; csrf: string; expires: number }
 const nonce = () => randomBytes(32).toString('hex');
 const equal = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
@@ -47,7 +47,7 @@ export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.no
     app.get('/api/session', (req, res) => {
       res.set('Cache-Control', 'private, no-store');
       const s = session(req);
-      res.json({ loginAvailable: loginAvailable(c), authenticated: !!s, internalAccess: !!s && c.discordAllowedIds.has(s.user.id), user: s ? { username: s.user.username } : null, ...(s ? { csrfToken: s.csrf } : {}) });
+      res.json({ loginAvailable: loginAvailable(c), authenticated: !!s, internalAccess: !!s && c.discordAllowedIds.has(s.user.id), user: s ? { username: s.user.username, displayName: s.user.displayName || s.user.username, avatarUrl: s.user.avatarUrl } : null, ...(s ? { csrfToken: s.csrf } : {}) });
     });
     app.get('/auth/discord', (req, res) => {
       res.set('Cache-Control', 'no-store');
@@ -92,7 +92,10 @@ export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.no
         if (sessions.size >= 10000) throw new Error('Session limit');
         sessions.delete(sessionKey(req));
         const key = nonce();
-        sessions.set(key, { user: { id: identity.id, username: identity.username }, csrf: nonce(), expires: now() + 8 * 3600000 });
+        const avatarUrl = typeof identity.avatar === 'string' && /^(a_)?[a-f0-9]{32}$/.test(identity.avatar)
+          ? `https://cdn.discordapp.com/avatars/${identity.id}/${identity.avatar}.png?size=128`
+          : `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(identity.id) >> 22n) % 6n)}.png`;
+        sessions.set(key, { user: { id: identity.id, username: identity.username, displayName: typeof identity.global_name === 'string' ? identity.global_name : identity.username, avatarUrl }, csrf: nonce(), expires: now() + 8 * 3600000 });
         res.cookie(sessionName, sign(key), { ...cookieOptions, maxAge: 8 * 3600000 });
         // Access/refresh tokens are deliberately neither stored nor sent to the browser.
         res.redirect('/');
@@ -107,5 +110,10 @@ export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.no
       res.status(204).end();
     });
   }
-  return { mount, requireDocs };
+  const requireWrite = (req: Request, res: Response, next: NextFunction) => {
+    const s = session(req), csrf = req.get('X-CSRF-Token') || '';
+    if (!s || !/^[a-f0-9]{64}$/.test(csrf) || !equal(s.csrf, csrf)) { res.status(403).json({ error: 'Invalid session' }); return; }
+    next();
+  };
+  return { mount, requireDocs, requireWrite };
 }

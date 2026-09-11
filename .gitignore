@@ -1,9 +1,11 @@
 node_modules/
+.media/
 dist/
 build/
 .env
 .env.*
 !.env.example
+!.env.image.example
 coverage/
 *.log
 .artifacts/

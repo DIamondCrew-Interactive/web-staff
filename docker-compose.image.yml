@@ -1,0 +1,47 @@
+name: diamondcrew-images
+services:
+  image-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.image-service
+    image: diamondcrew-image-service:local
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 1g
+    cpus: 2
+    pids_limit: 128
+    expose: ["3000"]
+    volumes:
+      - media:/media
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      IMAGE_STORAGE_ROOT: /media
+      IMAGE_PUBLIC_URL: ${IMAGE_PUBLIC_URL:-https://img.dcrp.cz}
+      IMAGE_MAX_UPLOAD_MB: ${IMAGE_MAX_UPLOAD_MB:-25}
+      IMAGE_MAX_BATCH_MB: ${IMAGE_MAX_BATCH_MB:-50}
+      IMAGE_MAX_BATCH_FILES: ${IMAGE_MAX_BATCH_FILES:-10}
+      IMAGE_CACHE_SECONDS: ${IMAGE_CACHE_SECONDS:-300}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
+      DISCORD_REDIRECT_URI: ${DISCORD_REDIRECT_URI:-https://img.dcrp.cz/auth/discord/callback}
+      DISCORD_ALLOWED_USER_IDS: ${DISCORD_ALLOWED_USER_IDS:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+    networks: [proxy]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  media:
+    name: diamondcrew-image-media
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-diamondcrew-proxy}

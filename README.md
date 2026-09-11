@@ -2,16 +2,24 @@
 
 Veřejný rozcestník a status na `staff.diamondcrew.net`, Discord čtečka Cookbooku a samostatný `status.diamondcrew.net`. Bez Basic Auth, povinného hesla a fiktivních metrik. Repo: https://github.com/DIamondCrew-Interactive/web-staff.
 
-Tato změna je zatím pouze lokální. Publikovaný tag `v1.0.0` ji neobsahuje. Nic nebylo v rámci této změny pushnuto ani nasazeno.
+Základní Cookbook/OAuth verze je publikovaná jako `v1.1.0`. Nová homepage a Image Service jsou zatím pouze lokální; v rámci tohoto doplnění nic nebylo pushnuto ani nasazeno.
+
+## Nová homepage a Image Service
+
+Staff používá dodané assety v public/branding (beze změny originálů) a hlavní DiamondCrew logo. DEV karty mají žlutý diagonální pruh. Desktop grid 4×2, tablet 2 sloupce, mobile 1. Personalizované jméno/avatar pochází z Discordu; žádné falešné notifikace. Cookbook není na homepage: header Documentation se zobrazí jen allowlisted uživateli a vede na serverově chráněnou /docs.
+
+Infrastructure Image Service odkazuje na existující https://img.dcrp.cz (root HTTP200 ověřen 2026-09-11, healthz404; žádný domnělý live status). Nový management, API, Docker a migrace jsou popsány v [Image Service návodu](docs/IMAGE_SERVICE.md). Samostatný Compose docker-compose.image.yml nic nespouští na DIA-01 automaticky.
+
+Nové entrypointy: src/image.tsx, server/image.ts, server/media/{app,storage}.ts, image.html, Dockerfile.image-service, .env.image.example. Přibyl audit offline médií scripts/audit-media.ts a 40 Cookbook stránek. Knihovna používá Multer a Sharp; public read / authorized write.
 
 ## Stack a struktura
 
 Node.js 22, Express 5, React 19, TypeScript, Vite, Lucide, react-markdown/GFM, rehype-highlight, gray-matter; Docker Compose a Nginx Proxy Manager. Originální DiamondCrew logo je `public/diamondcrew-logo.png`.
 
 ```text
-src/staff.tsx                  veřejný rozcestník, status, Discord, Cookbook
+src/staff.tsx                  veřejný rozcestník, status, Discord; Cookbook na /docs
 src/public.tsx                 čistá veřejná status stránka
-src/config/services.ts         centrální konfigurace sedmi dlaždic
+src/config/services.ts         centrální konfigurace 8 hlavních + 2 infrastructure karet
 src/components/Cookbook.tsx    kategorie, hledání, TOC, Markdown, copy, navigace
 src/components/ui.tsx          sdílený design/status
 server/auth.ts                 OAuth, state, podepsané session, allowlist
@@ -20,7 +28,7 @@ server/docs.ts                 autorizované i anonymní read-only API
 server/config.ts               server-only env, validace status targetů
 server/adapters.ts             Pterodactyl, FiveM, HTTP
 server/monitoring.ts           bezpečná veřejná projekce a cache
-docs/internal/                 21 kategorií, 287 Markdown stránek
+docs/internal/                 22 kategorií, 327 Markdown stránek
 scripts/validate-cookbook.ts    kontrola metadat, odkazů, fences a cest
 tests/                        backend, bezpečnost, prohlížeč
 ```
@@ -29,10 +37,10 @@ tests/                        backend, bezpečnost, prohlížeč
 
 | Přístup | Obsah |
 |---|---|
-| Veřejný staff `/` | Sedm dlaždic (jen Server Manager aktivní), šest jednoduchých statusů, Discord login |
+| Veřejný staff `/` | 8 hlavních karet (Server Manager + Services Status aktivní), Infrastructure Services, šest jednoduchých status řádků, Discord login |
 | Veřejný status web | Prismatic Roleplay, DiamondCrew Roleplay, Minecraft, Infrastructure; bez DEV a admin nástrojů |
 | Discord bez allowlistu | Veřejný web a nenápadné `No internal access` |
-| Discord s allowlistem | Infrastructure Cookbook UI a `/api/internal/docs/*` |
+| Discord s allowlistem | Infrastructure Cookbook na `/docs` a `/api/internal/docs/*` |
 | Anonymní AI | Schválený bezpečný obsah přes `/ai/cookbook.md` a `/api/cookbook/*` na staff hostu |
 
 **Cookbook obsah není tajný.** Finální zadání záměrně povoluje anonymní AI čtení stejného obsahu. Discord chrání Staff čtečku a její API, nikoliv důvěrnost Markdownů. Unlisted URL, robots.txt a `X-Robots-Tag: noindex, nofollow` jsou pouze omezení dohledatelnosti. AI routy nejsou odkazované ve veřejném UI. Public-status varianta vůbec nemountuje OAuth ani Cookbook routy (404).
@@ -43,7 +51,7 @@ Dokumenty jsou verzované v tomto veřejném repozitáři a přibalené do serve
 
 Veřejné: `GET /healthz`, `GET /api/public/status`.
 
-Staff session: `GET /api/session`; vrací pouze username, booleany přihlášení/oprávnění a logout CSRF token, nikoliv Discord ID, allowlist či OAuth token.
+Staff session: `GET /api/session`; vrací username, Discord display name/avatar URL, booleany přihlášení/oprávnění a logout CSRF token. Avatar URL je odvozena jen z validované Discord identity; žádný allowlist ani OAuth token.
 
 Staff čtení s kontrolou session a allowlistu při každém požadavku:
 
@@ -109,7 +117,7 @@ Bez zdroje UNKNOWN, žádná demo data. Odezva je naměřené trvání HTTP requ
 
 ## Cookbook
 
-21 kategorií / 287 stránek. Kategorie: Getting started; DIA nodes; Server Manager installation; Wings; FiveM; txAdmin; Nginx Proxy Manager; Web hosting; DNS/HTTPS; Cockpit; Staff Center; Public Status; Databases/Redis; Docker; Backups; Monitoring/Operations; Security; Server Manager User Guide; AI Runbooks; Troubleshooting; Disaster Recovery.
+22 kategorií / 327 stránek. Kategorie: Getting started; DIA nodes; Server Manager installation; Wings; FiveM; txAdmin; Nginx Proxy Manager; Web hosting; DNS/HTTPS; Cockpit; Staff Center; Public Status; Databases/Redis; Docker; Backups; Monitoring/Operations; Security; Server Manager User Guide; AI Runbooks; Troubleshooting; Disaster Recovery; Image Service / CDN.
 
 Podrobné postupy pokrývají čistý Debian → Panel → Wings → test server → branding, nový game node, celou control plane, FiveM/txAdmin, Minecraft/Source server, Egg/Nest, web ze složky, Docker web za NPM, backup/restore a DIA-01 LOST. Inventář uvedený uživatelem je rozlišen od obecných požadavků a příkladů; neznámé údaje mají placeholder. Instalační příkazy nejsou automatický installer a nebyly spuštěny na DIA-01. Před použitím ověř cílový stav a verze podle přiložených primárních zdrojů.
 
@@ -141,13 +149,13 @@ npm run test:browser
 npm audit
 ```
 
-Browser test zahrnuje oba production buildy a typecheck. Backend testy simulují Discord transport, nikoliv testovací bypass routu. Testuje se allowlist, state/replay, CSRF, expiry, veřejný status, AI read-only API, traversal/symlinky, index/odkazy/frontmatter/fences, browser bundle a responsive Cookbook. Skutečný Discord login, Docker runtime a živé upstreamy vyžadují cílové přístupy.
+Browser test zahrnuje tři production buildy a typecheck. Backend testy simulují Discord transport, nikoliv testovací bypass routu. Testuje se allowlist, state/replay, CSRF, expiry, veřejný status, AI read-only API, traversal/symlinky, index/odkazy/frontmatter/fences, browser bundle a responsive Cookbook. Skutečný Discord login, Docker runtime a živé upstreamy vyžadují cílové přístupy.
 
 Secret scan před publikací: Gitleaks nad Git historií a nad exportem aktuálních verzovaných + neignorovaných nových souborů, včetně `docs/internal/`. Neignoruj nalezený secret jen proto, aby kontrola prošla. `.gitignore`/`.dockerignore` vylučují env, keys, dumps, `.artifacts` a lokální build výstupy.
 
 ## Přesný update na DIA-01 — až po schválení
 
-Aktuální změny nejsou na remote. Následující postup použij až po schváleném publikování konkrétního commitu; `v1.0.0` není nová verze. Připrav samostatné servisní okno a ponech stávající NPM routy/sítě. Shell: Bash se sudo/docker právy.
+Aktuální doplnění homepage/Image Service není na remote. Následující postup použij až po schváleném publikování konkrétního commitu; `v1.1.0` je předchozí Cookbook verze. Připrav samostatné servisní okno a ponech stávající NPM routy/sítě. Shell: Bash se sudo/docker právy.
 
 1. Zálohuj aktuální checkout, env a oba běžící image. Příkazy nic nevypisují ze secrets:
 

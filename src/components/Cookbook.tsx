@@ -58,7 +58,7 @@ export function Cookbook({ onExpired }: { onExpired: () => void }) {
   }, [page, pendingHash]);
   function choose(slug: string, hash = '') {
     setSelected(slug); setQuery(''); setMobileOpen(false); setPendingHash(hash);
-    history.replaceState(null, '', `/?${new URLSearchParams({ cookbook: slug })}#cookbook`);
+    history.replaceState(null, '', `/docs?${new URLSearchParams({ cookbook: slug })}#cookbook`);
     if (!hash) document.getElementById('cookbook')?.scrollIntoView({ block: 'start' });
   }
   function followLink(event: React.MouseEvent, href: string | undefined) {

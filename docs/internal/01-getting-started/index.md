@@ -30,3 +30,6 @@ Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials
 
 ## Related pages
 [Architecture](architecture.md)
+
+## Image Service / CDN
+[Image Service / CDN](../22-image-service-cdn/index.md) — veřejné asset URL, management a migrace existujícího CDN.

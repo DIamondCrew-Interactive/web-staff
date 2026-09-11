@@ -25,9 +25,9 @@ function rawRequest(base: string, pathname: string, method = 'GET') {
   });
 }
 
-test('Cookbook index includes every Markdown page, all 21 categories and validates links/fences', async () => {
+test('Cookbook index includes every Markdown page, all 22 categories and validates links/fences', async () => {
   const pages = await loadCookbook();
-  assert.equal(new Set(pages.map(p => p.category)).size, 21);
+  assert.equal(new Set(pages.map(p => p.category)).size, 22);
   async function count(root: string): Promise<number> {
     let n = 0;
     for (const entry of await fs.readdir(root, { withFileTypes: true })) n += entry.isDirectory() ? await count(path.join(root, entry.name)) : entry.name.endsWith('.md') ? 1 : 0;

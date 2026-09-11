@@ -10,5 +10,5 @@
     "outDir": "build",
     "rootDir": "."
   },
-  "include": ["server", "src/shared", "src/config/services.ts"]
+  "include": ["server", "src/shared", "src/config/services.ts", "scripts/audit-media.ts"]
 }

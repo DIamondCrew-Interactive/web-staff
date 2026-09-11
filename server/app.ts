@@ -11,7 +11,7 @@ export function createApp(variant = config.variant, c: AppConfig = config, reque
   app.disable('x-powered-by');
   app.use((_req, res, next) => {
     res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()' });
-    if (c.production) res.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+    if (c.production) res.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.discordapp.com; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
     next();
   });
   app.get('/healthz', (_req, res) => res.json({ status: 'ok' }));
@@ -23,10 +23,11 @@ export function createApp(variant = config.variant, c: AppConfig = config, reque
   if (variant === 'staff') {
     const auth = createAuth(c, request, now);
     auth.mount(app);
+    app.get('/docs', auth.requireDocs, (_req, res, next) => { res.locals.docsAuthorized = true; next(); });
     mountDocs(app, auth.requireDocs, docsDirectory);
   }
   // No filesystem documents or backend sources are public, including in development.
-  app.use(['/docs', '/server'], (_req, res) => res.status(404).send('Not found'));
+  app.use(['/docs', '/server'], (req, res, next) => { if (res.locals.docsAuthorized && req.originalUrl.split('?')[0] === '/docs') next(); else res.status(404).send('Not found'); });
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
   return app;
 }

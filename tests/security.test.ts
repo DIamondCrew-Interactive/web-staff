@@ -64,6 +64,7 @@ test('public APIs work with zero OAuth/Basic credentials; docs remain protected'
     const body = await publicRes.json(); assert.equal(body.servers.length, 6);
     assert.ok(body.servers.every((s: any) => s.state === 'UNKNOWN' && s.players === null && s.responseMs === null));
     assert.equal((await fetch(`${f.base}/api/internal/docs`)).status, 401);
+    assert.equal((await fetch(`${f.base}/docs`)).status, 401);
     assert.equal((await fetch(`${f.base}/api/internal/docs/page/01-getting-started/index`)).status, 401);
     assert.equal((await fetch(`${f.base}/docs/internal/server-manager.md`)).status, 404);
     assert.equal((await fetch(`${f.base}/api/staff/status`)).status, 404);
@@ -147,5 +148,5 @@ test('monitoring projects only safe data and adapters never fabricate metrics', 
   assert.equal((await readStatus({ id: 'minecraft', maintenance: true }, c, failed)).state, 'MAINTENANCE');
   assert.throws(() => readTargets('[{"id":"dia-01","healthUrl":"https://user:password@example.test"}]'));
   assert.throws(() => readTargets('[{"id":"not-allowed"}]'));
-  assert.deepEqual(services.filter(s => s.enabled).map(s => s.id), ['manager']);
+  assert.deepEqual(services.filter(s => s.enabled).map(s => s.id), ['manager', 'status']);
 });

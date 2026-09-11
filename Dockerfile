@@ -7,7 +7,7 @@ COPY server ./server
 COPY scripts ./scripts
 COPY public ./public
 COPY docs/internal ./docs/internal
-COPY index.html public.html vite.config.ts tsconfig.json tsconfig.server.json ./
+COPY index.html public.html image.html vite.config.ts tsconfig.json tsconfig.server.json ./
 RUN npm run build && npm prune --omit=dev
 
 FROM node:22-alpine AS runtime

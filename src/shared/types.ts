@@ -1,7 +1,8 @@
 export type Status = 'OPERATIONAL' | 'DEGRADED' | 'OFFLINE' | 'IN PROGRESS';
 export interface Service {
   id: string; name: string; description: string; url: string; enabled: boolean;
-  status: Status; category: 'management' | 'roleplay'; icon: 'panel' | 'terminal' | 'network' | 'game';
+  status: Status; category: 'management' | 'roleplay' | 'infrastructure'; icon: 'panel' | 'terminal' | 'network' | 'game' | 'status' | 'image';
+  logo?: string; visual?: string;
   project?: string; environment?: 'PROD' | 'DEV';
 }
 export type ServerState = 'ONLINE' | 'OFFLINE' | 'MAINTENANCE' | 'DEGRADED' | 'UNKNOWN';
@@ -17,7 +18,7 @@ export interface PublicSnapshot {
 }
 export interface SessionInfo {
   loginAvailable: boolean; authenticated: boolean; internalAccess: boolean;
-  user: { username: string } | null; csrfToken?: string;
+  user: { username: string; displayName?: string; avatarUrl?: string } | null; csrfToken?: string;
 }
 export interface DocEntry { slug: string; title: string }
 export interface CookbookEntry extends DocEntry { category: string; categoryTitle: string; order: number; audience: string[]; tags: string[]; headings: { id: string; text: string; depth: number }[] }

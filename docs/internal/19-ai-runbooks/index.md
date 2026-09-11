@@ -40,3 +40,9 @@ Dokumentace je přístupná i unlisted AI API. Neobsahuje skutečné credentials
 
 ## Related pages
 [Architecture](../01-getting-started/architecture.md)
+
+## Image Service
+- [Manage Image Service](manage-image-service.md)
+- [Upload an image safely](upload-image.md)
+- [Migrate Image Service](migrate-image-service.md)
+- [Diagnose Image Service](diagnose-image-service.md)

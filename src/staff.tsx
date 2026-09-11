@@ -1,42 +1,32 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-const Cookbook = lazy(() => import('./components/Cookbook').then(module => ({ default: module.Cookbook })));
-import { ArrowUpRight, BookOpen, Check, Gamepad2, LockKeyhole, LogIn, LogOut, Network, PanelTop, Terminal } from 'lucide-react';
-import { services } from './config/services';
-import type { Service, SessionInfo } from './shared/types';
-import { Footer, PublicHeader, StatusLink, StatusSection, useResource } from './components/ui';
+import { Activity, ArrowRight, BookOpen, Gamepad2, Image, LogIn, LogOut, Server, Shield, Terminal, Users } from 'lucide-react';
+import { infrastructureServices, services } from './config/services';
+import type { PublicSnapshot, Service, SessionInfo } from './shared/types';
+import { useResource } from './components/ui';
 import './styles.css';
-
-const icons = { panel: PanelTop, terminal: Terminal, network: Network, game: Gamepad2 };
-function Tile({ service }: { service: Service }) {
+import './launcher.css';
+const Cookbook = lazy(() => import('./components/Cookbook').then(m => ({ default: m.Cookbook })));
+const icons = { panel: Server, terminal: Terminal, network: Shield, game: Gamepad2, status: Activity, image: Image };
+function Tile({ service, compact = false }: { service: Service; compact?: boolean }) {
   const Icon = icons[service.icon];
-  const body = <><div className="tile-top"><span className={`tile-icon ${service.project === 'Prismatic' ? 'pink' : ''}`}><Icon size={24}/></span>{service.enabled ? <span className="available"><Check size={12}/> AVAILABLE</span> : <span className="progress">IN PROGRESS</span>}</div><h3>{service.name}</h3>{service.enabled && <p>{service.description}</p>}<div className="tile-bottom">{service.enabled ? <><span>Open Server Manager</span><ArrowUpRight size={17}/></> : <><span>IN PROGRESS</span><LockKeyhole size={13}/></>}</div></>;
-  return service.enabled ? <a className="tile enabled" href={service.url} target="_blank" rel="noreferrer">{body}</a> : <article className="tile disabled" aria-disabled="true">{body}</article>;
+  const body = <>{!compact && <div className={`card-scene scene-${service.visual}`} aria-hidden="true"><div className="scene-pattern"/>{service.logo ? <img className={`project-logo ${service.project === 'Prismatic' ? 'prismatic-logo' : ''}`} src={service.logo} alt=""/> : <Icon className="service-symbol" strokeWidth={1.5}/>}</div>}{compact && <Icon className="infra-icon" size={28}/>}<div className="card-copy"><h2>{service.name}</h2><p>{service.description}</p></div>{!service.enabled && <span className="launch-progress">IN PROGRESS</span>}{service.environment === 'DEV' && <span className="dev-ribbon" aria-label="Development server">DEV</span>}{service.enabled && <span className="launch-arrow" aria-hidden="true"><ArrowRight size={22}/></span>}</>;
+  const className = `${compact ? 'infra-card' : 'launch-card'} ${service.enabled ? 'enabled' : 'disabled'} card-${service.id}`;
+  return service.enabled ? <a className={className} href={service.url} target="_blank" rel="noreferrer">{body}</a> : <article className={className} aria-disabled="true">{body}</article>;
+}
+function SimpleStatus() {
+  const { data, error } = useResource<PublicSnapshot>('/api/public/status');
+  return <section className="simple-status" aria-label="Server status"><h2>SERVER STATUS</h2>{error && <p className="access-note" role="alert">Status není dostupný. Poslední známé údaje mohou být zastaralé.</p>}{data?.incident && <p className="notice" role="alert">{data.incident.title} — {data.incident.message}</p>}{data?.maintenance.active && <p className="notice">{data.maintenance.message}</p>}<div className="status-rows">{data?.servers.map(s => <div className="status-row" key={s.id}><span className={`status-dot dot-${s.state.toLowerCase()}`}/><span>{s.name.replace(' PROD', ' Roleplay').replace(/^(Prismatic|DiamondCrew) DEV$/, '$1 Roleplay DEV')}</span>{s.players !== null && <small><Users size={12}/>{s.players}</small>}<strong>{s.state}</strong></div>)}</div>{!data && <p className="access-note">Načítání stavu serverů…</p>}<a className="detailed-status" href="https://status.diamondcrew.net" target="_blank" rel="noreferrer">View detailed status <ArrowRight size={15}/></a></section>;
 }
 function App() {
   const session = useResource<SessionInfo>('/api/session');
   const [logoutError, setLogoutError] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
-  const loginResult = new URLSearchParams(location.search).get('login');
-  useEffect(() => { if (loginResult) history.replaceState(null, '', '/'); }, []);
+  const docs = location.pathname === '/docs';
+  const name = session.data?.user?.displayName || session.data?.user?.username;
   async function logout() {
-    setLoggingOut(true); setLogoutError(false);
-    try {
-      const response = await fetch('/auth/logout', { method: 'POST', headers: { 'X-CSRF-Token': session.data?.csrfToken || '' } });
-      if (!response.ok && response.status !== 403) throw new Error('Logout failed');
-      await session.refresh();
-    } catch { setLogoutError(true); } finally { setLoggingOut(false); }
+    try { const r = await fetch('/auth/logout', { method: 'POST', headers: { 'X-CSRF-Token': session.data?.csrfToken || '' } }); if (!r.ok && r.status !== 403) throw Error(); if (docs) location.assign('/'); else await session.refresh(); }
+    catch { setLogoutError(true); }
   }
-  return <div className="site-shell"><a className="skip" href="#main">Skip to content</a><PublicHeader><StatusLink/>{session.data?.authenticated ? <div className="account"><span>{session.data.user?.username}</span><button className="button subtle" onClick={logout} disabled={loggingOut}><LogOut size={14}/>Sign out</button></div> : session.data?.loginAvailable ? <a className="button discord" href="/auth/discord"><LogIn size={16}/>Login with Discord</a> : <button className="button discord" disabled title="Discord login has not been configured"><LogIn size={16}/>Login with Discord</button>}</PublicHeader>
-    <main id="main"><section className="intro"><span className="eyebrow">WELCOME TO THE CREW</span><h1>Your DiamondCrew<br/>starting point<span>.</span></h1><p>Our tools, our servers. Everything in one place.</p><div className="intro-links"><a href="#tools">Explore tools <span>↓</span></a><a href="#status">Server status</a>{session.data?.internalAccess && <a href="#cookbook">Cookbook</a>}</div></section>
-      {session.data?.authenticated && !session.data.internalAccess && <p className="access-note">No internal access</p>}
-      {session.error && <p className="access-note" role="status">Login status is unavailable. Public tools and server status remain available.</p>}
-      {logoutError && <p className="notice" role="alert">Sign out failed. Please try again.</p>}
-      {loginResult && <p className="access-note">{loginResult === 'cancelled' ? 'Discord sign-in was cancelled.' : loginResult === 'unavailable' ? 'Discord login is not configured yet.' : 'Discord sign-in could not be completed. Please try again.'}</p>}
-      <section id="tools"><div className="section-heading"><div><span className="eyebrow">QUICK ACCESS</span><h2>Tools & consoles</h2></div><span className="section-note">Built for the DiamondCrew ecosystem</span></div><div className="tile-grid">{services.map(service => <Tile key={service.id} service={service}/>)}</div></section>
-      <StatusSection/>
-      {session.data?.internalAccess && !session.error && <Suspense fallback={<p role="status">Loading Cookbook…</p>}><Cookbook onExpired={session.refresh}/></Suspense>}
-      {!session.data?.internalAccess && <div className="staff-note"><BookOpen size={17}/><span>Part of the team? Sign in with Discord to access internal documentation.</span></div>}
-    </main><Footer/></div>;
+  return <div className="launcher"><a className="skip" href="#main">Skip to content</a><header className="launcher-header"><a className="launcher-brand" href="/"><img src="/diamondcrew-logo.png" alt="DiamondCrew"/><span><strong>DiamondCrew</strong><small>PLAY • CREATE • TOGETHER</small></span></a><div className="launcher-account">{session.data?.internalAccess && <a className="docs-link" href="/docs"><BookOpen size={17}/>Documentation</a>}{session.data?.authenticated ? <><img className="discord-avatar" src={session.data.user?.avatarUrl} alt="Discord avatar"/><span className="display-name">{name}</span><button className="button subtle" onClick={logout} aria-label="Sign out"><LogOut size={16}/></button></> : session.data?.loginAvailable ? <a className="button discord" href="/auth/discord"><LogIn size={17}/>Login with Discord</a> : <button className="button discord" disabled><LogIn size={17}/>Login with Discord</button>}</div><div className="header-shards" aria-hidden="true"/></header><main id="main" className="launcher-main">{docs ? <><a className="back-home" href="/">← Staff Center</a>{session.data?.internalAccess && !session.error ? <Suspense fallback={<p>Loading Cookbook…</p>}><Cookbook onExpired={session.refresh}/></Suspense> : <p role="status">Pro dokumentaci je potřeba autorizované přihlášení.</p>}</> : <><section className="launcher-hero"><div><h1>Vítej{name ? <>, <span>{name}!</span></> : '!'}</h1><p>Vyber si službu, se kterou chceš pracovat.</p></div><blockquote>„Lepší servery. Silnější komunita.“<cite>— DiamondCrew</cite></blockquote></section>{session.data?.authenticated && !session.data.internalAccess && <p className="access-note">No internal access</p>}{(session.error || logoutError) && <p role="alert" className="access-note">Přihlášení není dostupné. Veřejné služby zůstávají přístupné.</p>}{new URLSearchParams(location.search).has('login') && <p className="access-note">Discord přihlášení nebylo dokončeno. Zkus to znovu.</p>}<section className="launcher-grid" aria-label="Services">{services.map(service => <Tile key={service.id} service={service}/>)}</section><section className="infrastructure"><h2>Infrastructure Services</h2><div className="infra-grid">{infrastructureServices.map(service => <Tile compact key={service.id} service={service}/>)}</div></section><SimpleStatus/></>}</main><footer className="launcher-footer"><div><strong>DiamondCrew Interactive</strong><small>GAME SERVERS WITHOUT LIMITS</small></div><p>© {new Date().getFullYear()} <span>DiamondCrew Interactive.</span> All rights reserved.</p><img src="/diamondcrew-logo.png" alt=""/></footer></div>;
 }
 createRoot(document.getElementById('root')!).render(<App/>);

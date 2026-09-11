@@ -19,7 +19,7 @@ Administrátor a AI agent s oprávněním k dané změně.
 
 ## Architecture
 
-Veřejný rozcestník; Discord povoluje Cookbook UI. Express na 3000 za NPM.
+Veřejný 4×2 rozcestník; Discord povoluje Cookbook UI na samostatné /docs. Homepage Cookbook nevykresluje. Header Documentation je viditelný jen allowlisted účtu. Express na 3000 za NPM. Infrastructure sekce odkazuje na Image Service na jiném VPS.
 
 ## Prerequisites
 
@@ -49,3 +49,6 @@ Při rozporu inventáře a zjištěného stavu zastav změnu. Odděl problém ko
 ## Related pages
 
 [Kategorie a navazující návody](index.md)
+
+## Image Service
+[Image Service / CDN](../22-image-service-cdn/index.md) má vlastní management a deployment.

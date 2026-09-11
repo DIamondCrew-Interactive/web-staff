@@ -1,6 +1,6 @@
 # Cookbook authoring
 
-`docs/internal/` obsahuje 287 schválených Markdownů v 21 kategoriích. Název složky je historický: obsah je dostupný anonymně přes AI read-only API a je součástí veřejného repozitáře. Discord allowlist odemyká Staff UI, nikoliv důvěrnost tohoto obsahu.
+`docs/internal/` obsahuje 327 schválených Markdownů ve 22 kategoriích. Název složky je historický: obsah je dostupný anonymně přes AI read-only API a je součástí veřejného repozitáře. Discord allowlist odemyká Staff UI, nikoliv důvěrnost tohoto obsahu.
 
 Žádná hesla, API keys, APP_KEY, Discord secrets, FiveM license keys, DB hesla ani SSH privátní klíče. Používej placeholder `<configure-for-target-environment>` a bezpečné příklady. Uživatelský inventář odliš od software requirements. Nepřenášej sem neveřejné backupy/logy/env.
 
