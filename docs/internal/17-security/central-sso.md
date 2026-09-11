@@ -25,13 +25,19 @@ TRUST_PROXY_CIDRS smí obsahovat pouze explicitní IP/CIDR skutečného reverse-
 SSO redeem se nejprve autentizuje, pak čerpá vlastní per-service limit 600/minutu. Neplatné credentials mají oddělený per-IP limit 60/minutu. Staff OAuth starts mají 60/minutu per IP, issuance a Image starts 120/minutu per IP. Counters expirují a mají pevný paměťový limit. Neloguj query tickety, JWT nebo Authorization.
 
 ## Stav integrace 11. září 2026
-Staff 1.3.1 (`ea740d`) je nasazen; připravovaná zdrojová verze je 1.3.2. Proxy Manager 1.1 prošel nasazením a restartem s explicitním mapováním aplikačního uživatele 1. Controller 1.2.1 je nasazen s mapováním existujícího Unix UID 1001. Container node UID 1000 patří Staff/Image. Rozsah skutečného browser E2E posuzuj samostatně.
+Staff Center a Public Status 1.3.4 jsou nasazeny. Controller 1.2.2 a Proxy Manager 1.1.0 prošly nativním SSO ověřením. Image Service 1.3.3 je nasazená, migrace všech 3430 původních souborů byla ověřena přes HTTPS podle SHA a nativní SSO i upload prošly ověřením. Verze 1.4.0 se správou uživatelů a historií statusu je zatím pouze lokální, nenasazený kandidát.
 
 Staff produkce používá `/etc/diamondcrew-staffcenter/runtime.compose.json`; Proxy `/etc/diamondcrew-interactive/npm-runtime.compose.json`. Běžné up nad tracked Compose by odstranilo runtime SSO konfiguraci. Zachovej credentials, mounty, sítě a explicitní project kontext. [Runbook a rollback](../11-staff-center/update.md).
 
-Image commit `cef7878` prošel izolovaným Linux Docker buildem a smoke testy health, syntetického veřejného PNG a anonymních management API hranic. Produkční DNS, CDN migrace ani živé Image SSO tím nejsou potvrzeny.
-
-Původní Image CDN zůstává zachována včetně /uploads/ cest, migrace neproběhla a nová management UI není na produkční doméně ověřená. [Image oprávnění](../22-image-service-cdn/permissions.md) popisují připravenou novou aplikaci. Herní STATUS_TARGETS je nyní prázdné a produkční Pterodactyl API key není nakonfigurovaný: herní metriky musí zůstat UNKNOWN. Počet zjištěných kontejnerů sám nepřiděluje jejich identitu ani hráče.
+Veřejné CDN cesty a původní názvy souborů zůstaly zachovány. [Image oprávnění](../22-image-service-cdn/permissions.md) popisují správu médií. Herní STATUS_TARGETS je prázdné a produkční Pterodactyl API key není nakonfigurovaný: herní metriky musí zůstat UNKNOWN. Počet zjištěných kontejnerů sám nepřiděluje jejich identitu ani hráče.
 
 ## Ověření před přijetím
 Ověř povolený i nepovolený účet, jinou audience, expirovaný a opakovaný ticket, state/PKCE mismatch, lokální logout, websocket a nativní operace služby. Chyba jednoho cíle nesmí měnit přihlášení jiných cílů. Lokální mock Discord a PAM testy samy nedokazují produkční browser session.
+
+## Správa uživatelů ve Staff (volitelný kandidát 1.4.0)
+
+Správce otevře **Přístupy**, založí profil pomocí číselného **Discord User ID** a výslovně přidělí služby. Nevytváří tím Discord účet ani heslo. Nový profil nemá služby automaticky. Pro dalšího uživatele správy CDN zvol **Image Service — správa médií**; oprávnění správce uživatelů ponech jen lidem, kteří mají přidělovat práva ostatním. Existující ID uprav výběrem v seznamu. Obnova seznamu zahodí rozpracovaný formulář; souběžná změna vyžaduje novou kontrolu. Audit obsahuje autora, čas a stav před změnou i po ní.
+
+Zapnutí vyžaduje nový Staff i Image backend, privátní sdílený directory mount (Staff RW, Image RO), `STAFF_ACCESS_STORE_DIRECTORY`, `IMAGE_ACCESS_STORE_DIRECTORY` a explicitní první `STAFF_ADMIN_IDS`. Bez nastavení registru běží původní pravidla. Jednorázový `STAFF_ACCESS_BOOTSTRAP_LEGACY=true` importuje schválené Staff allowlisty, nepřiděluje automaticky správce a neimportuje lokální účty cílových aplikací. Zachovej produkční runtime Compose, samostatné SSO klíče, credentials, lokální mapy a media volume. Public Status registr nepotřebuje. Image kartu aktivuj přes `LAUNCHER_IMAGE_ENABLED=true` až po skutečném ověření Image přihlášení.
+
+V managed režimu odebrání Image grantu nebo blokace zneplatní již otevřené přihlášení při dalším chráněném požadavku i rozpracované SSO přihlášení. Opětovné přidělení grantu staré přihlášení neobnoví. Veřejné soubory zůstávají veřejné. Controller a Proxy vyžadují připravený účet propojený s Discordem a vlastní pravidla ukončení již otevřených přihlášení; Panel a txAdmin mají vlastní autorizaci. Chyba registru přístup odmítne, nepřepne zpět na legacy pravidla. Vlastní správu nelze odebrat a poslední aktivní správce je chráněn. Privátní registr včetně auditu a inicializačního markeru zálohuj jako celek. Podrobný instalační a obnovovací postup je ve zdrojovém `docs/ACCESS-MANAGEMENT.md`.

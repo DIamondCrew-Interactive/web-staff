@@ -9,14 +9,14 @@ const html = config.variant === "public" ? "public.html" : "index.html";
 if (config.production) {
   const root = path.resolve(`dist/${config.variant}`);
   app.use(express.static(root, { index: false }));
-  app.get(config.variant === 'staff' ? ['/', '/docs'] : '/', (_req, res) => res.sendFile(path.join(root, html)));
+  app.get(config.variant === 'staff' ? ['/', '/docs', '/admin/access'] : '/', (_req, res) => res.sendFile(path.join(root, html)));
 } else {
   const { createServer } = await import("vite");
   const vite = await createServer({
     server: { middlewareMode: true, fs: { strict: true, deny: ['.env', '.env.*', '**/*.{crt,pem,key}', '**/.git/**', '**/docs/**', '**/server/**', '**/tests/**', '**/.artifacts/**'] } },
     appType: "custom",
   });
-  app.get(config.variant === 'staff' ? ['/', '/docs'] : '/', async (req, res) =>
+  app.get(config.variant === 'staff' ? ['/', '/docs', '/admin/access'] : '/', async (req, res) =>
     res
       .type("html")
       .send(
@@ -43,13 +43,15 @@ app.use(
     res.status(503).json({ error: "Status temporarily unavailable" });
   },
 );
-const server = app.listen(config.port, "0.0.0.0", () =>
+const server = app.listen(config.port, "0.0.0.0", () => {
+  app.locals.startStatusHistory?.();
   console.log(
     `DiamondCrew ${config.variant} listening on :${config.port}`,
-  ),
-);
+  );
+});
 for (const signal of ["SIGTERM", "SIGINT"])
   process.on(signal, () => {
+    app.locals.stopStatusHistory?.();
     server.close(() => process.exit(0));
     setTimeout(() => process.exit(1), 10000).unref();
   });

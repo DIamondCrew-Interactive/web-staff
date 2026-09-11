@@ -1,3 +1,5 @@
+import type {AccessReader} from './access-store.js';
+import type {AccessService} from '../src/shared/access.js';
 import express from 'express';
 import { createRateBudget, requestAddress } from './rate-budget.js';
 import { createHash, randomBytes, randomUUID, timingSafeEqual, sign } from 'node:crypto';
@@ -10,10 +12,10 @@ const digest = (value: string) => createHash('sha256').update(value).digest();
 const equal = (a: string, b: string) => timingSafeEqual(digest(a), digest(b));
 const tokenPattern = /^[A-Za-z0-9_-]{43}$/;
 export const SSO_TTL_SECONDS = 45;
-interface Claims { iss: string; aud: string; sub: string; iat: number; exp: number; state: string; jti: string }
+interface Claims { iss: string; aud: string; sub: string; iat: number; exp: number; state: string; jti: string; access_epoch?:number }
 interface Pending { claims: Claims; challenge: string; active: () => boolean }
 
-export function mountSso(app: Express, c: AppConfig, auth: ReturnType<typeof createAuth>, now = Date.now) {
+export function mountSso(app: Express, c: AppConfig, auth: ReturnType<typeof createAuth>, now = Date.now, access?:AccessReader) {
   if (!c.ssoEnabled) return;
   if (c.ssoIssuer !== 'https://staff.diamondcrew.net' || !/^[A-Za-z0-9_-]{1,64}$/.test(c.ssoKeyId) || !c.ssoClients.length || !c.sessionSecret) throw new Error('Invalid SSO configuration');
   const signingKey = readSigningKey(c.ssoPrivateKeyFile);
@@ -34,11 +36,11 @@ export function mountSso(app: Express, c: AppConfig, auth: ReturnType<typeof cre
     const client = c.ssoClients.find(client => client.id === audience), session = auth.session(req);
     if (!client) { res.status(404).json({ error: 'Unknown SSO client' }); return; }
     if (!session) { res.status(401).json({ error: 'Sign in first' }); return; }
-    if (!client.allowedDiscordIds.has(session.user.id)) { res.status(403).json({ error: 'No access to this service' }); return; }
+    if (!(access ? access.allowed(session.user.id, client.id as AccessService) : client.allowedDiscordIds.has(session.user.id))) { res.status(403).json({ error: 'No access to this service' }); return; }
     pruneTickets();
     if (!issueBudget(requestAddress(req)) || tickets.size >= 10000) { res.status(429).json({error:'Try again later'}); return; }
     const ticket = randomBytes(32).toString('base64url'), seconds = Math.floor(now() / 1000);
-    tickets.set(digest(ticket).toString('hex'), { challenge, active: () => auth.sessionActive(session), claims: { iss: c.ssoIssuer, aud: client.id, sub: session.user.id, iat: seconds, exp: seconds + SSO_TTL_SECONDS, state, jti: randomUUID() } });
+    tickets.set(digest(ticket).toString('hex'), { challenge, active: () => auth.sessionActive(session), claims: { iss: c.ssoIssuer, aud: client.id, sub: session.user.id, ...(access && client.id === 'image-service' ? {access_epoch:access.user(session.user.id)!.epoch} : {}), iat: seconds, exp: seconds + SSO_TTL_SECONDS, state, jti: randomUUID() } });
     const target = new URL(client.callbackUrl);
     target.search = new URLSearchParams({ ticket, state }).toString();
     if (redirect) res.redirect(303, target.href);
@@ -69,7 +71,7 @@ export function mountSso(app: Express, c: AppConfig, auth: ReturnType<typeof cre
     const { ticket, state, code_verifier: verifier } = req.body;
     if (typeof state !== 'string' || !/^[A-Za-z0-9_-]{43,128}$/.test(state) || Object.keys(req.body).some(key => !['ticket', 'state', 'code_verifier', 'audience'].includes(key)) || typeof ticket !== 'string' || !tokenPattern.test(ticket) || typeof verifier !== 'string' || !/^[A-Za-z0-9_-]{43,128}$/.test(verifier)) { res.status(400).json({ error: 'Invalid ticket request' }); return; }
     const key = digest(ticket).toString('hex'), pending = tickets.get(key);
-    if (!pending || !pending.active() || !equal(state, pending.claims.state) || pending.claims.aud !== client.id || pending.claims.exp <= Math.floor(now() / 1000) || !client.allowedDiscordIds.has(pending.claims.sub) || !equal(digest(verifier).toString('base64url'), pending.challenge)) { res.status(400).json({ error: 'Invalid or expired ticket' }); return; }
+    if (!pending || !pending.active() || !equal(state, pending.claims.state) || pending.claims.aud !== client.id || pending.claims.exp <= Math.floor(now() / 1000) || !(access ? access.allowed(pending.claims.sub, client.id as AccessService) : client.allowedDiscordIds.has(pending.claims.sub)) || !equal(digest(verifier).toString('base64url'), pending.challenge)) { res.status(400).json({ error: 'Invalid or expired ticket' }); return; }
     tickets.delete(key); // Synchronous, before sending identity: exactly one winner.
     const header = Buffer.from(JSON.stringify({alg: 'EdDSA', typ: 'JWT', kid: c.ssoKeyId})).toString('base64url');
     const issued = Math.floor(now() / 1000);

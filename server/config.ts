@@ -32,6 +32,9 @@ export function readTargets(raw = '[]'): StatusTarget[] {
 }
 export const config = {
   variant: process.env.APP_VARIANT || 'staff',
+  accessStoreDirectory: process.env.STAFF_ACCESS_STORE_DIRECTORY || '',
+  staffAdminIds: (process.env.STAFF_ADMIN_IDS || '').split(',').map(s => s.trim()).filter(Boolean),
+  accessBootstrapLegacy: process.env.STAFF_ACCESS_BOOTSTRAP_LEGACY === 'true',
   production: process.env.NODE_ENV === 'production',
   port: Number(process.env.PORT || 3000),
   discordClientId: process.env.DISCORD_CLIENT_ID || '',

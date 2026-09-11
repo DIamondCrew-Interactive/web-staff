@@ -1,3 +1,4 @@
+import type {AccessReader} from './access-store.js';
 import { createRateBudget, requestAddress } from './rate-budget.js';
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { Request, Response, NextFunction, Express } from 'express';
@@ -5,10 +6,10 @@ import { loginAvailable, type AppConfig } from './config.js';
 import type { Fetcher } from './adapters.js';
 
 interface Identity { id: string; username: string; displayName?: string; avatarUrl?: string }
-interface Session { user: Identity; csrf: string; expires: number }
+interface Session { user: Identity; csrf: string; expires: number; accessEpoch?:number }
 const nonce = () => randomBytes(32).toString('hex');
 const equal = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
-export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.now) {
+export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.now, access?:AccessReader) {
   const states = new Map<string, { value: string; expires: number; returnTo: string }>();
   const sessions = new Map<string, Session>();
   // A configured secret signs opaque IDs. Missing secret uses an ephemeral key;
@@ -33,14 +34,15 @@ export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.no
   }
   function session(req: Request): Session | undefined {
     const key = sessionKey(req), s = sessions.get(key);
-    if (s && s.expires <= now()) { sessions.delete(key); return undefined; }
+    const profile = s && access ? access.user(s.user.id) : undefined;
+    if (s && (s.expires <= now() || (access && (profile?.active === false || (profile?.epoch ?? 0) !== s.accessEpoch)))) { sessions.delete(key); return undefined; }
     return s;
   }
   function requireDocs(req: Request, res: Response, next: NextFunction) {
     res.set('Cache-Control', 'private, no-store');
     const s = session(req);
     if (!s) { res.status(401).json({ error: 'Sign in with Discord' }); return; }
-    if (!c.discordAllowedIds.has(s.user.id)) { res.status(403).json({ error: 'No internal access' }); return; }
+    if (!(access ? access.allowed(s.user.id, 'cookbook') || !!access.user(s.user.id)?.admin : c.discordAllowedIds.has(s.user.id))) { res.status(403).json({ error: 'No internal access' }); return; }
     next();
   }
   const loginBudget = createRateBudget(60, now);
@@ -63,7 +65,7 @@ export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.no
     app.get('/api/session', (req, res) => {
       res.set('Cache-Control', 'private, no-store');
       const s = session(req);
-      res.json({ loginAvailable: loginAvailable(c), authenticated: !!s, internalAccess: !!s && c.discordAllowedIds.has(s.user.id), user: s ? { username: s.user.username, displayName: s.user.displayName || s.user.username, avatarUrl: s.user.avatarUrl } : null, ...(s ? { csrfToken: s.csrf } : {}) });
+      res.json({ loginAvailable: loginAvailable(c), authenticated: !!s, internalAccess: !!s && (access ? access.allowed(s.user.id, 'cookbook') || !!access.user(s.user.id)?.admin : c.discordAllowedIds.has(s.user.id)), adminAccess: !!s && !!access?.user(s.user.id)?.admin, accessManaged: !!access, user: s ? { username: s.user.username, displayName: s.user.displayName || s.user.username, avatarUrl: s.user.avatarUrl } : null, ...(s ? { csrfToken: s.csrf } : {}) });
     });
     app.get('/auth/discord', (req, res) => beginLogin(req, res));
     app.get('/auth/discord/callback', async (req, res) => {
@@ -98,7 +100,9 @@ export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.no
         const avatarUrl = typeof identity.avatar === 'string' && /^(a_)?[a-f0-9]{32}$/.test(identity.avatar)
           ? `https://cdn.discordapp.com/avatars/${identity.id}/${identity.avatar}.png?size=128`
           : `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(identity.id) >> 22n) % 6n)}.png`;
-        sessions.set(key, { user: { id: identity.id, username: identity.username, displayName: typeof identity.global_name === 'string' ? identity.global_name : identity.username, avatarUrl }, csrf: nonce(), expires: now() + 8 * 3600000 });
+        const profile = access?.user(identity.id);
+        if (profile?.active === false) { res.redirect('/?login=blocked'); return; }
+        sessions.set(key, { ...(access ? {accessEpoch: profile?.epoch ?? 0} : {}), user: { id: identity.id, username: identity.username, displayName: typeof identity.global_name === 'string' ? identity.global_name : identity.username, avatarUrl }, csrf: nonce(), expires: now() + 8 * 3600000 });
         res.cookie(sessionName, sign(key), { ...cookieOptions, maxAge: 8 * 3600000 });
         // Access/refresh tokens are deliberately neither stored nor sent to the browser.
         res.redirect(pending.returnTo);
@@ -118,6 +122,6 @@ export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.no
     if (!s || !/^[a-f0-9]{64}$/.test(csrf) || !equal(s.csrf, csrf)) { res.status(403).json({ error: 'Invalid session' }); return; }
     next();
   };
-  const sessionActive = (candidate: Session) => candidate.expires > now() && [...sessions.values()].includes(candidate);
+  const sessionActive = (candidate: Session) => { const profile = access?.user(candidate.user.id); return candidate.expires > now() && [...sessions.values()].includes(candidate) && (!access || (profile?.active !== false && (profile?.epoch ?? 0) === candidate.accessEpoch)); };
   return { mount, requireDocs, requireWrite, session, beginLogin, sessionActive };
 }
