@@ -4,7 +4,9 @@ COPY package*.json ./
 RUN npm ci
 COPY src ./src
 COPY server ./server
+COPY scripts ./scripts
 COPY public ./public
+COPY docs/internal ./docs/internal
 COPY index.html public.html vite.config.ts tsconfig.json tsconfig.server.json ./
 RUN npm run build && npm prune --omit=dev
 
@@ -15,6 +17,7 @@ COPY --from=build --chown=node:node /app/package.json ./
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/build ./build
 COPY --from=build --chown=node:node /app/dist ./dist
+COPY --from=build --chown=node:node /app/docs/internal ./docs/internal
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 CMD node -e "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"

@@ -13,7 +13,7 @@ if (config.production) {
 } else {
   const { createServer } = await import("vite");
   const vite = await createServer({
-    server: { middlewareMode: true },
+    server: { middlewareMode: true, fs: { strict: true, deny: ['.env', '.env.*', '**/*.{crt,pem,key}', '**/.git/**', '**/docs/**', '**/server/**', '**/tests/**', '**/.artifacts/**'] } },
     appType: "custom",
   });
   app.get("/", async (req, res) =>
@@ -45,7 +45,7 @@ app.use(
 );
 const server = app.listen(config.port, "0.0.0.0", () =>
   console.log(
-    `DiamondCrew ${config.variant} listening on :${config.port} (${config.mode})`,
+    `DiamondCrew ${config.variant} listening on :${config.port}`,
   ),
 );
 for (const signal of ["SIGTERM", "SIGINT"])

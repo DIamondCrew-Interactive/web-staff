@@ -1,54 +1,123 @@
-# DiamondCrew Interactive · Staff Center
+# DiamondCrew Staff Center + Infrastructure Cookbook
 
-Samostatný projekt připravený pro repozitář `DIamondCrew-Interactive/web-staff`.
-Staff dashboard na `staff.diamondcrew.net` a veřejný status na `status.diamondcrew.net`.
-Repozitář: `https://github.com/DIamondCrew-Interactive/web-staff`. První verze: `v1.0.0`. Publikace kódu nebo tagu nic nenasazuje na DIA-01. Release workflow není potřeba: Docker Compose sestaví image přímo z vybraného tagu.
+Veřejný rozcestník a status na `staff.diamondcrew.net`, Discord čtečka Cookbooku a samostatný `status.diamondcrew.net`. Bez Basic Auth, povinného hesla a fiktivních metrik. Repo: https://github.com/DIamondCrew-Interactive/web-staff.
 
-Logo je originální PNG ze stejného brandingu jako DiamondCrew Server Manager, převzaté beze změn. Vizuál používá gradient `#2ec7ff → #f43cb2 → #f3d36b`. Původ a kontrolní součet loga jsou v `public/BRANDING.md`.
+Tato změna je zatím pouze lokální. Publikovaný tag `v1.0.0` ji neobsahuje. Nic nebylo v rámci této změny pushnuto ani nasazeno.
 
 ## Stack a struktura
 
-React 19, TypeScript, Vite, Lucide, vlastní responsive CSS; Node.js 22 + Express 5, Docker Compose. Bez externích fontů, CDN, analytiky a frontendových tokenů.
+Node.js 22, Express 5, React 19, TypeScript, Vite, Lucide, react-markdown/GFM, rehype-highlight, gray-matter; Docker Compose a Nginx Proxy Manager. Originální DiamondCrew logo je `public/diamondcrew-logo.png`.
 
 ```text
-src/
-  staff.tsx               interní dashboard
-  public.tsx              veřejná status stránka (samostatný build)
-  config/services.ts      centrální konfigurace launcherů
-  components/ui.tsx       sdílený design a načítání statusu
-  shared/types.ts         API datové typy
-  styles.css              responsive design obou aplikací
-server/
-  config.ts               server-only .env a validace
-  adapters.ts             Pterodactyl Client API / FiveM adaptér
-  monitoring.ts           demo/live snapshot, cache, veřejná projekce
-  app.ts                  izolace rout, hlavičky a staff autentizace
-  index.ts                Express + Vite dev / produkční statický build
-public/diamondcrew-logo.png originální DiamondCrew logo/favicon
-tests/security.test.ts    ověření izolace, autentizace a validace
-Dockerfile
-docker-compose.yml
-.env.example
+src/staff.tsx                  veřejný rozcestník, status, Discord, Cookbook
+src/public.tsx                 čistá veřejná status stránka
+src/config/services.ts         centrální konfigurace sedmi dlaždic
+src/components/Cookbook.tsx    kategorie, hledání, TOC, Markdown, copy, navigace
+src/components/ui.tsx          sdílený design/status
+server/auth.ts                 OAuth, state, podepsané session, allowlist
+server/cookbook.ts             bezpečný loader, frontmatter, index, fulltext
+server/docs.ts                 autorizované i anonymní read-only API
+server/config.ts               server-only env, validace status targetů
+server/adapters.ts             Pterodactyl, FiveM, HTTP
+server/monitoring.ts           bezpečná veřejná projekce a cache
+docs/internal/                 21 kategorií, 287 Markdown stránek
+scripts/validate-cookbook.ts    kontrola metadat, odkazů, fences a cest
+tests/                        backend, bezpečnost, prohlížeč
 ```
 
-## Obrazovky a chování
+## Public, Staff a AI přístup
 
-Staff: přehled, DIA-01 CPU/RAM/disk/uptime, core services, Management Tools, čtyři txAdmin karty, tabulka herních serverů s hledáním a PROD/DEV filtrem, Quick Actions. Mobilní navigace, loading, prázdná data, chyby a označení zastaralé poslední odpovědi.
+| Přístup | Obsah |
+|---|---|
+| Veřejný staff `/` | Sedm dlaždic (jen Server Manager aktivní), šest jednoduchých statusů, Discord login |
+| Veřejný status web | Prismatic Roleplay, DiamondCrew Roleplay, Minecraft, Infrastructure; bez DEV a admin nástrojů |
+| Discord bez allowlistu | Veřejný web a nenápadné `No internal access` |
+| Discord s allowlistem | Infrastructure Cookbook UI a `/api/internal/docs/*` |
+| Anonymní AI | Schválený bezpečný obsah přes `/ai/cookbook.md` a `/api/cookbook/*` na staff hostu |
 
-Public: obecný stav, čtyři veřejné služby, graf historie, incident banner, údržba, automatický refresh. Nezobrazuje admin nástroje, interní hostname, porty, hráčské identifikátory nebo hardware metriky. Public kontejner neposkytuje staff API ani staff frontend. Veřejná JSON odpověď vzniká explicitním allowlistem, nikoliv mazáním citlivých polí z interního objektu.
+**Cookbook obsah není tajný.** Finální zadání záměrně povoluje anonymní AI čtení stejného obsahu. Discord chrání Staff čtečku a její API, nikoliv důvěrnost Markdownů. Unlisted URL, robots.txt a `X-Robots-Tag: noindex, nofollow` jsou pouze omezení dohledatelnosti. AI routy nejsou odkazované ve veřejném UI. Public-status varianta vůbec nemountuje OAuth ani Cookbook routy (404).
 
-`DATA_MODE=demo` je výchozí režim: jasně označené ilustrativní hodnoty, nikoli skutečně měřené zdraví infrastruktury. `DATA_MODE=live` aktivuje backendové adaptéry. Bez dat jsou metriky `null`/`—` a stav `DEGRADED` s vysvětlením. Hostové a databázové probe ani perzistentní historie zatím nejsou implementované, takže veřejná infrastruktura/web v live režimu zůstávají `DEGRADED`. Neukazuje se vymyšlených 100 % uptime.
+Dokumenty jsou verzované v tomto veřejném repozitáři a přibalené do serverové image. Nikdy do nich nepatří hesla, tokeny, APP_KEY, license keys ani privátní klíče. Nepublikuj zde žádný další skutečně důvěrný dokument. Text Markdownů není importovaný do browser bundlu. Reader ignoruje raw HTML a obrázky; Vite blokuje přímý přístup k docs/backendu/env.
 
-### Dva odlišné druhy stavu
+### API
 
-- `src/config/services.ts`: dostupnost nástroje pro spuštění. Každý záznam má `name`, `description`, `url`, `enabled`, `status`, `category`, `icon` a stabilní `id`. Pouze Server Manager je povolený. `enabled=false` renderuje neklikatelné `<article>`, bez odkazu nebo click handleru. Quick Actions čtou stejnou konfiguraci. `AVAILABLE` znamená povolený launcher, nikoliv potvrzený healthcheck cílové URL.
-- Backend: runtime monitoring (`OPERATIONAL`, `DEGRADED`, `OFFLINE`, `IN PROGRESS`). `DEGRADED` pokrývá i neznámý stav; nedostatek dat neprohlašuje službu za online ani offline. Veřejná roleplay dostupnost vychází pouze z PROD serverů. DEV se do ní nepočítá. Údržba nastaví celkový stav `IN PROGRESS`, incident alespoň `DEGRADED`.
+Veřejné: `GET /healthz`, `GET /api/public/status`.
 
-Frontend obnovuje data každých 30 s a ručně přes Refresh. Server má 15s cache, sdílený probíhající požadavek a 5s upstream timeout. Ruční refresh může vrátit stále platný cached snapshot; čas posledního měření to ukazuje. FiveM adaptér uchovává pouze počet hráčů, ne jména/identifikátory. Uptime uzlu a uptime procesu serveru jsou odlišné hodnoty.
+Staff session: `GET /api/session`; vrací pouze username, booleany přihlášení/oprávnění a logout CSRF token, nikoliv Discord ID, allowlist či OAuth token.
 
-## Přesné lokální spuštění (PowerShell)
+Staff čtení s kontrolou session a allowlistu při každém požadavku:
 
-Požadavky: Node.js 22+, npm. V kořenu projektu:
+```text
+GET /api/internal/docs/index
+GET /api/internal/docs/page/:path
+GET /api/internal/docs/search?q=wings&filter=all
+GET /api/internal/docs/raw/:path
+GET /api/internal/docs/bundle
+```
+
+Bez session 401, nepovolený účet 403. `/api/internal/docs` je alias indexu.
+
+Anonymní AI čtení:
+
+```text
+GET /ai/cookbook.md
+GET /api/cookbook/index
+GET /api/cookbook/page/04-wings/index
+GET /api/cookbook/search?q=wings&filter=ai
+GET /api/cookbook/raw/04-wings/index
+GET /api/cookbook/bundle
+```
+
+Filtry: `all`, `user`, `infrastructure`, `ai`, `troubleshooting`. Path přijímá schválený slug s volitelným `.md`. Žádné zápisy, uploady ani spouštění příkazů; GET/HEAD only, ostatní metody 405 (privátní routy nejprve vyžadují auth). Loader odmítne symlinky, únik z kořene, duplicity, chybné metadata/odkazy; routy blokují i opakovaně zakódovaný traversal. Čte se výhradně `docs/internal/`, ne libovolná cesta. Neplatný Cookbook vrací kontrolované 503 bez filesystem detailů.
+
+## Discord OAuth
+
+1. `/auth/discord` vytvoří náhodný, jednorázový state svázaný s HttpOnly cookie na 10 minut.
+2. Discord Authorization Code Grant se scope `identify`; callback ověří state i cookie, backend vymění code a načte `/users/@me`.
+3. Discord ID se porovná se serverovým `DISCORD_ALLOWED_USER_IDS`. Browser dostane neprůhlednou, HMAC podepsanou session cookie; žádný Discord token.
+4. Povolenému účtu se odemkne Cookbook, ostatním zůstává veřejný web. Logout POST vyžaduje CSRF token a ruší serverovou session.
+
+Produkční cookies jsou `__Host-`, HttpOnly, Secure, SameSite=Lax, bez Domain. Session žije max. 8 hodin, restart ji zruší. Paměťové úložiště má limit, zahájení loginu limit 60/minutu/proces. Pro více staff replik nejprve přidej sdílené session úložiště. Access/refresh tokeny se neukládají.
+
+Chybějící OAuth nastavení nezablokuje start; tlačítko bude neaktivní. Prázdný allowlist neodemkne Staff čtečku nikomu. `SESSION_SECRET` doporučeně vygeneruj `openssl rand -hex 32`; bez něj server vytvoří dočasný náhodný klíč. Nejde o heslo veřejného webu.
+
+### Získání Client ID / Secret
+
+V [Discord Developer Portal](https://discord.com/developers/applications) založ aplikaci DiamondCrew. V OAuth2 zkopíruj Client ID a vytvoř Client Secret. Bot není potřeba. Do OAuth2 Redirects i `DISCORD_REDIRECT_URI` vlož přesně:
+
+```text
+https://staff.diamondcrew.net/auth/discord/callback
+```
+
+Pro lokální vývoj přidej `http://localhost:3000/auth/discord/callback`. Produkce přijímá pouze HTTPS callback. V Discord Developer Mode zkopíruj User ID povolených osob, odděl čárkami. Role a username se pro autorizaci nepoužívají. [Oficiální Authorization Code Grant](https://docs.discord.com/developers/topics/oauth2).
+
+## Env a reálné statusy
+
+Serverové proměnné: `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_REDIRECT_URI`, `DISCORD_ALLOWED_USER_IDS`, `SESSION_SECRET`. Dále `STATUS_TARGETS`, `PTERODACTYL_URL`, `PTERODACTYL_CLIENT_API_KEY`, `PUBLIC_INCIDENT_TITLE`, `PUBLIC_INCIDENT_MESSAGE`, `PUBLIC_MAINTENANCE`, `PUBLIC_MAINTENANCE_MESSAGE`, `PROXY_NETWORK`, `APP_VARIANT`, `PORT`. Viz [.env.example](.env.example).
+
+Odstraň staré `STAFF_USERNAME`, `STAFF_PASSWORD`, `DATA_MODE`, `PTERODACTYL_SERVERS`. Secrets nikdy nedávej do `VITE_*`. Veřejná oznámení jsou záměrně veřejný text a nesmějí obsahovat interní adresy/secrets.
+
+`STATUS_TARGETS` je JSON s nejvýše šesti známými ID: `prismatic-prod`, `prismatic-dev`, `diamond-prod`, `diamond-dev`, `minecraft`, `dia-01`. Volitelná pole: `pterodactylId`, `fivemUrl`, `healthUrl`, `maintenance`. URL jsou pouze z env, bez credentials/query/fragment; HTTP healthcheck může mít path. Redirecty zakázané, timeout 5 sekund.
+
+- Pterodactyl Client API `/api/client/servers/{identifier}/resources`: running → ONLINE, offline → OFFLINE, starting/stopping → DEGRADED; neplatný payload/chyba API → UNKNOWN.
+- FiveM `/players.json`: platné pole → skutečný počet hráčů a ONLINE, chyba → UNKNOWN. Jména/identifikátory hráčů se zahodí.
+- HTTP 2xx → ONLINE, neúspěch/timeout → OFFLINE vzhledem k vybranému healthchecku. Probe musí skutečně reprezentovat danou službu.
+- Priorita zdrojů: Pterodactyl, FiveM, HTTP. FiveM doplňuje players jen při ONLINE. Údržba přebíjí probes na MAINTENANCE.
+- Minecraft lze sledovat přes Pterodactyl nebo existující HTTP exporter; nativní Minecraft player ping není implementovaný.
+
+Bez zdroje UNKNOWN, žádná demo data. Odezva je naměřené trvání HTTP requestu, nikoliv ICMP ping. UI refresh 30 s, backend cache 15 s. API explicitně vybírá pouze bezpečná veřejná pole; nevrací IP, upstream URL, API identifikátory, tokeny, hostové CPU/RAM či domnělou historii uptime.
+
+## Cookbook
+
+21 kategorií / 287 stránek. Kategorie: Getting started; DIA nodes; Server Manager installation; Wings; FiveM; txAdmin; Nginx Proxy Manager; Web hosting; DNS/HTTPS; Cockpit; Staff Center; Public Status; Databases/Redis; Docker; Backups; Monitoring/Operations; Security; Server Manager User Guide; AI Runbooks; Troubleshooting; Disaster Recovery.
+
+Podrobné postupy pokrývají čistý Debian → Panel → Wings → test server → branding, nový game node, celou control plane, FiveM/txAdmin, Minecraft/Source server, Egg/Nest, web ze složky, Docker web za NPM, backup/restore a DIA-01 LOST. Inventář uvedený uživatelem je rozlišen od obecných požadavků a příkladů; neznámé údaje mají placeholder. Instalační příkazy nejsou automatický installer a nebyly spuštěny na DIA-01. Před použitím ověř cílový stav a verze podle přiložených primárních zdrojů.
+
+Formát, přidání dokumentu a bezpečnostní pravidla: [docs/README.md](docs/README.md). Výchozí stránka: [Getting started](docs/internal/01-getting-started/index.md).
+
+## Lokální spuštění a kontroly
+
+Node.js 22+, v kořenu projektu:
 
 ```powershell
 Copy-Item .env.example .env
@@ -56,9 +125,7 @@ npm ci
 npm run dev
 ```
 
-Otevřít `http://localhost:3000` (Staff Center). Vývojový server bez vyplněných přihlašovacích údajů nevyžaduje přihlášení; tento režim patří jen do důvěryhodné lokální sítě. Poslouchá na `0.0.0.0` pro mobilní náhled.
-
-Ve druhém PowerShell terminálu ve stejném adresáři:
+Staff `http://localhost:3000`. Pro status ve druhém terminálu:
 
 ```powershell
 $env:APP_VARIANT = 'public'
@@ -66,86 +133,72 @@ $env:PORT = '3001'
 npm run dev
 ```
 
-Otevřít `http://localhost:3001`. Procesové proměnné přebíjejí `.env`. Vite middleware v developmentu zpřístupňuje zdrojové soubory: pro skutečně veřejný provoz používat výhradně produkční build.
-
-Ověření:
-
 ```powershell
-npm run typecheck
 npm test
-npm run build
-```
-
-Volitelná reprodukovatelná kontrola v prohlížeči:
-
-```powershell
+npm run check:docs
 npx playwright install chromium
 npm run test:browser
+npm audit
 ```
 
-Testuje produkční aplikace na portech 4310–4312, responzivitu při 320/390 px, neklikatelné karty, filtry, chybový refresh, veřejný bundle bez interních adres a incident/maintenance režim. Screenshoty ukládá do ignorované složky `.artifacts/` a testovací servery po dokončení ukončí.
+Browser test zahrnuje oba production buildy a typecheck. Backend testy simulují Discord transport, nikoliv testovací bypass routu. Testuje se allowlist, state/replay, CSRF, expiry, veřejný status, AI read-only API, traversal/symlinky, index/odkazy/frontmatter/fences, browser bundle a responsive Cookbook. Skutečný Discord login, Docker runtime a živé upstreamy vyžadují cílové přístupy.
 
-Lokální produkční test: vyplnit `STAFF_USERNAME` a silné `STAFF_PASSWORD` (alespoň 20 znaků) v `.env`, pak:
+Secret scan před publikací: Gitleaks nad Git historií a nad exportem aktuálních verzovaných + neignorovaných nových souborů, včetně `docs/internal/`. Neignoruj nalezený secret jen proto, aby kontrola prošla. `.gitignore`/`.dockerignore` vylučují env, keys, dumps, `.artifacts` a lokální build výstupy.
 
-```powershell
-$env:NODE_ENV = 'production'
-$env:APP_VARIANT = 'staff'
-$env:PORT = '3000'
-npm start
-```
+## Přesný update na DIA-01 — až po schválení
 
-Pro public změnit `APP_VARIANT=public` a `PORT=3001` v druhém terminálu. `GET /healthz` vrací 200 bez přihlášení a neprozrazuje konfiguraci. Healthcheck potvrzuje proces, nikoli zdraví upstream serverů.
+Aktuální změny nejsou na remote. Následující postup použij až po schváleném publikování konkrétního commitu; `v1.0.0` není nová verze. Připrav samostatné servisní okno a ponech stávající NPM routy/sítě. Shell: Bash se sudo/docker právy.
 
-## Bezpečné napojení Pterodactyl / FiveM
-
-1. Založit dedikovaný účet v Pterodactylu s minimálním oprávněním číst vybrané servery. Vytvořit **Client API key**. Token patří pouze do serverového `.env`, nikdy do proměnných `VITE_*`.
-2. Nastavit `PTERODACTYL_URL=https://panel.diamondcrew.net`, `PTERODACTYL_CLIENT_API_KEY=…`, `DATA_MODE=live`.
-3. Vyplnit `PTERODACTYL_SERVERS` podle příkladu v `.env.example`. Použít krátký Client API identifier serveru, nikoliv numerické Application API ID. Nastavit správný projekt, PROD/DEV, node a port. Tyto metadata jsou konfigurace, nikoliv automatický discovery.
-4. Adaptér volá pouze `GET /api/client/servers/{identifier}/resources` server-to-server. Čte stav, CPU, RAM a uptime procesu. Neprovádí power ani jiné změny. Pterodactyl CPU může přesáhnout 100 % při využití více jader.
-5. Volitelný `fivemUrl` směruje z backendu na `/players.json` a `/info.json`. Endpointy musí být dostupné z kontejneru a podle konfigurace FiveM povolené. Redirecty jsou zakázané; žádné klientské parametry nemohou určovat cílovou URL.
-6. Pro skutečné hostové DIA-01 metriky doplnit důvěryhodný agent/exporter do `server/monitoring.ts`. Nezaměňovat součet container CPU za hostové metriky. Pro Wings/DB/Redis/NPM doplnit serverové probes. Application API klíč není pro aktuální adaptér potřeba; případný budoucí discovery musí také zůstat na backendu.
-7. Pro reálnou 60denní historii doplnit plánovaný collector + perzistentní databázi a agregaci dostupnosti. Aktuální paměťová cache historii neukládá. Pro velké nasazení je vhodný samostatný monitoring collector místo sběru v obou kontejnerech.
-
-Připojení nebylo ověřeno proti vašemu živému panelu, protože nebyly dodány přístupy ani identifikátory serverů. API chyby uživateli nevrací upstream payloady ani tokeny.
-
-## Přesný Docker deployment za Nginx Proxy Manager
-
-Následující kroky jsou návod k pozdějšímu provedení; nejsou součástí provedeného nasazení. Požadavky: Docker Engine + Compose plugin, Nginx Proxy Manager na stejném Docker hostu, připravené DNS A/AAAA obou domén.
-
-1. Repozitář je veřejný, proto lze konkrétní tag stáhnout přes HTTPS bez GitHub přihlašovacích údajů. Přihlášený administrátor na DIA-01 připraví pracovní adresář:
+1. Zálohuj aktuální checkout, env a oba běžící image. Příkazy nic nevypisují ze secrets:
 
 ```bash
-sudo mkdir -p /opt/diamondcrew-staffcenter
-sudo chown "$(id -u):$(id -g)" /opt/diamondcrew-staffcenter
-git clone --branch v1.0.0 --single-branch https://github.com/DIamondCrew-Interactive/web-staff.git /opt/diamondcrew-staffcenter
+set -eu
 cd /opt/diamondcrew-staffcenter
-git describe --tags --exact-match
+test -z "$(git status --porcelain)" || { echo 'Nejprve uchovej lokální změny a zastav update.'; exit 1; }
+backup="/opt/diamondcrew-staffcenter-backups/$(date -u +%Y%m%dT%H%M%SZ)"
+install -d -m 700 "$backup"
+git rev-parse HEAD > "$backup/commit"
+git archive HEAD > "$backup/source.tar"
+cp -p .env "$backup/env"
+chmod 600 "$backup/env"
+cp docker-compose.yml "$backup/docker-compose.yml"
+for service in staffcenter public-status; do
+  container=$(docker compose ps -q "$service")
+  test -n "$container" || { echo "Chybí běžící $service; ověř stav ručně."; exit 1; }
+  image=$(docker inspect --format '{{.Image}}' "$container")
+  docker image tag "$image" "diamondcrew-staffcenter:rollback-$service"
+done
+printf '%s\n' "$backup"
 ```
-2. Na serveru:
+
+Poznamenej si vypsanou cestu. Pokud má stará instalace vlastní neversionované docs, zálohuj je samostatně a sluč jen bezpečný schválený obsah. Následující tagy rollback nepřepisuj dalším updatem, dokud tento není ověřen.
+
+2. Vyber přesný schválený commit a uprav env:
 
 ```bash
-cd /opt/diamondcrew-staffcenter
-cp .env.example .env
-chmod 600 .env
-openssl rand -hex 24
+git fetch origin --tags
+read -r -p 'Schválený nový commit SHA: ' approved_commit
+git cat-file -e "$approved_commit^{commit}"
+git checkout --detach "$approved_commit"
 nano .env
-```
-
-Vložit vygenerované heslo do `STAFF_PASSWORD` a vyplnit `STAFF_USERNAME`. `DATA_MODE=demo` ponechá označené demo; pro reálná data použít `live` a dokončit adaptéry. U znaků `$` a `#` použít v `.env` jednoduché uvozovky; hex heslo tento problém nemá.
-
-3. Připravit sdílenou síť (jednorázově):
-
-```bash
+chmod 600 .env
+# SESSION_SECRET: vygeneruj lokálně openssl rand -hex 32 a ulož pouze do .env.
+# Doplň Discord údaje a případné reálné STATUS_TARGETS.
+# Odstraň staré Basic Auth proměnné; PROXY_NETWORK=diamondcrew-proxy.
 docker network inspect diamondcrew-proxy >/dev/null 2>&1 || docker network create diamondcrew-proxy
+docker compose config --quiet
+docker compose build
+docker compose up -d --force-recreate
+docker compose ps
 ```
 
-Pokud již existuje síť NPM, použít její přesný název v `PROXY_NETWORK` místo vytváření nové. Přidat stejnou external síť do Compose NPM a připojit ji k jeho službě, aby se připojení zachovalo po recreate. Dočasně lze existující kontejner připojit příkazem `docker network connect diamondcrew-proxy JMENO_NPM_KONTEJNERU`, ale to nenahrazuje trvalou Compose konfiguraci.
+Cookbook je nyní uvnitř image; nepřidávej původní docs bind mount. Prázdná OAuth konfigurace start neblokuje. Build provede kontrolu celé dokumentace. Kontejnery běží jako neprivilegovaný uživatel, s read-only FS, healthcheckem a bez publikovaného host portu.
 
-Příklad doplnění do **existujícího** Compose NPM (zachovat jeho ostatní konfiguraci a sítě):
+3. NPM musí být trvale připojen k external síti **`diamondcrew-proxy`**. V jeho Compose zachovej původní sítě a doplň:
 
 ```yaml
 services:
-  app: # skutečný název vaší NPM služby
+  app: # ověř skutečný název NPM služby
     networks:
       - default
       - diamondcrew
@@ -155,51 +208,59 @@ networks:
     name: diamondcrew-proxy
 ```
 
-4. Sestavit a spustit v adresáři projektu:
+Pokud již připojen je, nic neměň. Jinak aplikuj změnu z jeho vlastního Compose adresáře; nerecreateuj NPM naslepo z adresáře Staff Center.
+
+| Doména | Scheme | Forward hostname | Port |
+|---|---|---|---|
+| staff.diamondcrew.net | http | staffcenter | 3000 |
+| status.diamondcrew.net | http | public-status | 3000 |
+
+Zachovej TLS/Force SSL. Staff NPM Access List nastav veřejný a odstraň starou Basic Auth. Necachuj `/auth/*`, `/api/*`, `/ai/*`. Callback code ani cookies neposílej do analytik.
+
+4. Ověření:
 
 ```bash
-docker compose config --quiet
-docker compose build
-docker compose up -d
+docker compose exec -T staffcenter node -e "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1))"
+docker compose exec -T public-status node -e "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1))"
+curl -fsS -o /dev/null https://staff.diamondcrew.net/
+curl -fsS https://staff.diamondcrew.net/api/public/status
+curl -fsS https://status.diamondcrew.net/api/public/status
+curl -fsS -o /dev/null https://staff.diamondcrew.net/ai/cookbook.md
+curl -fsS -o /dev/null https://staff.diamondcrew.net/api/cookbook/bundle
+curl -s -o /dev/null -w '%{http_code}\n' https://staff.diamondcrew.net/api/internal/docs/index
+# očekáváno 401
+curl -s -o /dev/null -w '%{http_code}\n' https://status.diamondcrew.net/api/cookbook/index
+# očekáváno 404
+curl -s -o /dev/null -w '%{http_code}\n' -X POST https://staff.diamondcrew.net/api/cookbook/index
+# očekáváno 405
+```
+
+V prohlížeči ověř povolený/nepovolený Discord účet, logout, hledání/TOC/copy a mobile. UNKNOWN před doplněním monitoringu je správný stav. Změny allowlistu/env aplikuj `docker compose up -d --force-recreate staffcenter`; existující sessions tím skončí.
+
+## Přesný rollback
+
+Vrať původní zdroj, env i zachované image bez rebuildování. Žádná aplikační DB migrace zde není. Do proměnné `backup` vlož skutečnou dříve vypsanou cestu:
+
+```bash
+set -eu
+cd /opt/diamondcrew-staffcenter
+read -r -p 'Cesta k záloze tohoto updatu: ' backup
+test -f "$backup/commit"
+test -f "$backup/env"
+test -z "$(git status --porcelain)" || { echo 'Nejprve uchovej lokální změny.'; exit 1; }
+git checkout --detach "$(cat "$backup/commit")"
+cp -p "$backup/env" .env
+chmod 600 .env
+cat > "$backup/rollback.yml" <<'YAML'
+services:
+  staffcenter:
+    image: diamondcrew-staffcenter:rollback-staffcenter
+  public-status:
+    image: diamondcrew-staffcenter:rollback-public-status
+YAML
+docker compose -f docker-compose.yml -f "$backup/rollback.yml" config --quiet
+docker compose -f docker-compose.yml -f "$backup/rollback.yml" up -d --no-build --force-recreate
 docker compose ps
-docker compose exec staffcenter node -e "fetch('http://127.0.0.1:3000/healthz').then(async r=>console.log(r.status,await r.text()))"
-docker compose exec public-status node -e "fetch('http://127.0.0.1:3000/api/public/status').then(async r=>console.log(r.status,await r.text()))"
 ```
 
-5. NPM → Proxy Hosts → přidat:
-
-| Domain Names             | Scheme | Forward Hostname | Forward Port |
-| ------------------------ | ------ | ---------------- | ------------ |
-| `staff.diamondcrew.net`  | `http` | `staffcenter`    | `3000`       |
-| `status.diamondcrew.net` | `http` | `public-status`  | `3000`       |
-
-Pro oba vystavit SSL certifikát, zapnout **Force SSL** a HTTP/2. Aplikace používá serverovou Basic autentizaci staff části; pro tuto konfiguraci NPM ponechat Access List `Publicly Accessible`, protože dvě nezávislé Basic autentizace by soupeřily o hlavičku `Authorization`. To neodstraňuje autentizaci aplikace. Pro týmový provoz lze Basic auth později nahradit OIDC/SSO. Přístup veřejného hostu musí směřovat pouze na `public-status`.
-
-6. Ověřit oba hosty:
-
-```bash
-curl -I https://staff.diamondcrew.net/
-# 401, bez přihlašovacích údajů
-curl -u VASE_STAFF_USERNAME https://staff.diamondcrew.net/api/staff/status
-# curl se dotáže na heslo; očekáváno 200
-curl https://status.diamondcrew.net/api/public/status
-# 200, jen veřejná data
-curl -i https://status.diamondcrew.net/api/staff/status
-# 404
-```
-
-Obě aplikace uvnitř kontejnerů poslouchají na **3000**. Compose nepublikuje žádné hostové porty; přístup zajišťuje NPM přes Docker síť. Image běží jako neprivilegovaný `node`, s read-only filesystemem, bez capabilities a s healthcheckem. Síť musí povolit odchozí spojení k Pterodactylu a případným FiveM endpointům.
-
-Aktualizace po změně souborů: `docker compose up -d --build`. Změna `.env`: `docker compose up -d --force-recreate`. Diagnostika: `docker compose logs --tail=100`. Zastavení: `docker compose down`.
-
-## Incidenty a údržba
-
-Vyplnit `PUBLIC_INCIDENT_TITLE` a `PUBLIC_INCIDENT_MESSAGE` a recreate public kontejner. Pro ukončení obě hodnoty vyprázdnit. Údržba: `PUBLIC_MAINTENANCE=true` a veřejný text `PUBLIC_MAINTENANCE_MESSAGE`; pro ukončení `false`. Jde o aktuální oznámení, ne perzistentní incident management nebo budoucí kalendář.
-
-## Co je potřeba doplnit
-
-- Případné další vizuální reference txAdmin/Server Manager UI pro navazující úpravy.
-- Reálné Client server identifiers, projekty a prostředí; backendový token dodat bezpečně na server, neposílat do repozitáře.
-- Zdroj hostových metrik, service probes a perzistentního uptime; produkční veřejné webové cíle.
-- Název NPM sítě, DNS/SSL a staff přihlašovací údaje nebo budoucí OIDC poskytovatel.
-- Finální veřejné incidenty/údržba. Do těchto textů nikdy nedávat interní data.
+Starý koncept může znovu vyžadovat původní Basic Auth; vrácený `.env` ji musí obsahovat. Obnov podle potřeby původní NPM Access List. Síť `diamondcrew-proxy`, certifikáty a upstream jména zůstávají. Ověř oba weby a healthchecks; zachované rollback image nemaž před přijetím nové verze.

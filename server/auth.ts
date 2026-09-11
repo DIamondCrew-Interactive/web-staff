@@ -1,0 +1,111 @@
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import type { Request, Response, NextFunction, Express } from 'express';
+import { loginAvailable, type AppConfig } from './config.js';
+import type { Fetcher } from './adapters.js';
+
+interface Identity { id: string; username: string }
+interface Session { user: Identity; csrf: string; expires: number }
+const nonce = () => randomBytes(32).toString('hex');
+const equal = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
+export function createAuth(c: AppConfig, request: Fetcher = fetch, now = Date.now) {
+  const states = new Map<string, { value: string; expires: number }>();
+  const sessions = new Map<string, Session>();
+  // A configured secret signs opaque IDs. Missing secret uses an ephemeral key;
+  // public startup never depends on a password, and restart invalidates sessions.
+  const signingKey = c.sessionSecret || nonce();
+  const sign = (value: string) => `${value}.${createHmac('sha256', signingKey).update(value).digest('hex')}`;
+  function sessionKey(req: Request) {
+    const value = cookie(req, sessionName);
+    if (!/^[a-f0-9]{64}\.[a-f0-9]{64}$/.test(value)) return '';
+    const key = value.slice(0, 64);
+    return equal(value, sign(key)) ? key : '';
+  }
+  const sessionName = c.production ? '__Host-dc_session' : 'dc_session';
+  const stateName = c.production ? '__Host-dc_oauth' : 'dc_oauth';
+  const cookieOptions = { httpOnly: true, secure: c.production, sameSite: 'lax' as const, path: '/' };
+  function cookie(req: Request, name: string) {
+    return (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith(`${name}=`))?.slice(name.length + 1) || '';
+  }
+  function prune() {
+    for (const [key, s] of states) if (s.expires <= now()) states.delete(key);
+    for (const [key, s] of sessions) if (s.expires <= now()) sessions.delete(key);
+  }
+  function session(req: Request): Session | undefined {
+    const key = sessionKey(req), s = sessions.get(key);
+    if (s && s.expires <= now()) { sessions.delete(key); return undefined; }
+    return s;
+  }
+  function requireDocs(req: Request, res: Response, next: NextFunction) {
+    res.set('Cache-Control', 'private, no-store');
+    const s = session(req);
+    if (!s) { res.status(401).json({ error: 'Sign in with Discord' }); return; }
+    if (!c.discordAllowedIds.has(s.user.id)) { res.status(403).json({ error: 'No internal access' }); return; }
+    next();
+  }
+  let starts = 0, windowEnd = 0;
+  function mount(app: Express) {
+    app.get('/api/session', (req, res) => {
+      res.set('Cache-Control', 'private, no-store');
+      const s = session(req);
+      res.json({ loginAvailable: loginAvailable(c), authenticated: !!s, internalAccess: !!s && c.discordAllowedIds.has(s.user.id), user: s ? { username: s.user.username } : null, ...(s ? { csrfToken: s.csrf } : {}) });
+    });
+    app.get('/auth/discord', (req, res) => {
+      res.set('Cache-Control', 'no-store');
+      if (!loginAvailable(c)) { res.redirect('/?login=unavailable'); return; }
+      prune();
+      if (now() >= windowEnd) { starts = 0; windowEnd = now() + 60000; }
+      if (++starts > 60 || states.size >= 10000) { res.status(429).send('Please try signing in later.'); return; }
+      states.delete(cookie(req, stateName));
+      const browser = nonce(), state = nonce();
+      states.set(browser, { value: state, expires: now() + 600000 });
+      res.cookie(stateName, browser, { ...cookieOptions, maxAge: 600000 });
+      const url = new URL('https://discord.com/oauth2/authorize');
+      url.search = new URLSearchParams({ client_id: c.discordClientId, redirect_uri: c.discordRedirectUri, response_type: 'code', scope: 'identify', state }).toString();
+      res.redirect(url.href);
+    });
+    app.get('/auth/discord/callback', async (req, res) => {
+      res.set('Cache-Control', 'no-store');
+      const browser = cookie(req, stateName), pending = states.get(browser);
+      states.delete(browser); // Single-use and bound to the browser cookie.
+      res.clearCookie(stateName, cookieOptions);
+      if (!loginAvailable(c) || !pending || pending.expires <= now() || typeof req.query.state !== 'string' || !/^[a-f0-9]{64}$/.test(req.query.state) || !equal(pending.value, req.query.state)) {
+        res.status(400).send('Invalid or expired sign-in request. Return to Staff Center and try again.'); return;
+      }
+      if (req.query.error) { res.redirect('/?login=cancelled'); return; }
+      if (typeof req.query.code !== 'string' || req.query.code.length > 2048) { res.status(400).send('Invalid authorization code'); return; }
+      try {
+        const tokenRes = await request('https://discord.com/api/oauth2/token', {
+          method: 'POST', redirect: 'error', signal: AbortSignal.timeout(8000),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ grant_type: 'authorization_code', client_id: c.discordClientId, client_secret: c.discordClientSecret, redirect_uri: c.discordRedirectUri, code: req.query.code }),
+        });
+        if (!tokenRes.ok) throw new Error('OAuth exchange failed');
+        const token = await tokenRes.json();
+        if (typeof token.access_token !== 'string' || token.token_type?.toLowerCase() !== 'bearer') throw new Error('Invalid OAuth token');
+        const userRes = await request('https://discord.com/api/v10/users/@me', {
+          headers: { Authorization: `Bearer ${token.access_token}` }, redirect: 'error', signal: AbortSignal.timeout(8000),
+        });
+        if (!userRes.ok) throw new Error('Identity lookup failed');
+        const identity = await userRes.json();
+        if (typeof identity.id !== 'string' || !/^\d{17,20}$/.test(identity.id) || typeof identity.username !== 'string') throw new Error('Invalid identity');
+        prune();
+        if (sessions.size >= 10000) throw new Error('Session limit');
+        sessions.delete(sessionKey(req));
+        const key = nonce();
+        sessions.set(key, { user: { id: identity.id, username: identity.username }, csrf: nonce(), expires: now() + 8 * 3600000 });
+        res.cookie(sessionName, sign(key), { ...cookieOptions, maxAge: 8 * 3600000 });
+        // Access/refresh tokens are deliberately neither stored nor sent to the browser.
+        res.redirect('/');
+      } catch { res.redirect('/?login=failed'); }
+    });
+    app.post('/auth/logout', (req, res) => {
+      res.set('Cache-Control', 'no-store');
+      const s = session(req), csrf = req.get('X-CSRF-Token') || '';
+      if (!s || !/^[a-f0-9]{64}$/.test(csrf) || !equal(s.csrf, csrf)) { res.status(403).json({ error: 'Invalid session' }); return; }
+      sessions.delete(sessionKey(req));
+      res.clearCookie(sessionName, cookieOptions);
+      res.status(204).end();
+    });
+  }
+  return { mount, requireDocs };
+}

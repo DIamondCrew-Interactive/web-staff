@@ -1,66 +1,24 @@
-export type Status = "OPERATIONAL" | "DEGRADED" | "OFFLINE" | "IN PROGRESS";
-export type Category = "management" | "roleplay";
-export type IconName = "panel" | "terminal" | "network" | "game";
+export type Status = 'OPERATIONAL' | 'DEGRADED' | 'OFFLINE' | 'IN PROGRESS';
 export interface Service {
-  id: string;
-  name: string;
-  description: string;
-  url: string;
-  enabled: boolean;
-  status: Status;
-  category: Category;
-  icon: IconName;
-  project?: string;
-  environment?: "PROD" | "DEV";
+  id: string; name: string; description: string; url: string; enabled: boolean;
+  status: Status; category: 'management' | 'roleplay'; icon: 'panel' | 'terminal' | 'network' | 'game';
+  project?: string; environment?: 'PROD' | 'DEV';
 }
-export interface GameServer {
-  id: string;
-  name: string;
-  project: "Prismatic Roleplay" | "DiamondCrew Roleplay";
-  environment: "PROD" | "DEV";
-  online: boolean | null;
-  players: number | null;
-  maxPlayers: number | null;
-  cpu: number | null;
-  ramMb: number | null;
-  uptimeSeconds: number | null;
-  port: number;
-  node: string;
-}
-export interface StaffSnapshot {
-  mode: "demo" | "live";
-  updatedAt: string;
-  note: string | null;
-  node: {
-    name: string;
-    online: boolean | null;
-    cpu: number | null;
-    ramUsedGb: number | null;
-    ramTotalGb: number | null;
-    diskUsedGb: number | null;
-    diskTotalGb: number | null;
-    uptimeSeconds: number | null;
-  };
-  infrastructure: {
-    id: string;
-    name: string;
-    status: Status;
-    detail: string;
-  }[];
-  servers: GameServer[];
+export type ServerState = 'ONLINE' | 'OFFLINE' | 'MAINTENANCE' | 'DEGRADED' | 'UNKNOWN';
+export type ServerId = 'prismatic-prod' | 'prismatic-dev' | 'diamond-prod' | 'diamond-dev' | 'minecraft' | 'dia-01';
+export interface ServerStatus {
+  id: ServerId; name: string; state: ServerState; players: number | null;
+  responseMs: number | null; response: 'OK' | 'UNREACHABLE' | 'NOT CONFIGURED' | 'UNAVAILABLE';
 }
 export interface PublicSnapshot {
-  mode: "demo" | "live";
-  updatedAt: string;
-  overall: Status;
-  services: {
-    id: string;
-    name: string;
-    description: string;
-    status: Status;
-    uptime: number | null;
-    history: (Status | null)[];
-  }[];
+  updatedAt: string; servers: ServerStatus[];
   incident: { title: string; message: string } | null;
   maintenance: { active: boolean; message: string };
 }
+export interface SessionInfo {
+  loginAvailable: boolean; authenticated: boolean; internalAccess: boolean;
+  user: { username: string } | null; csrfToken?: string;
+}
+export interface DocEntry { slug: string; title: string }
+export interface CookbookEntry extends DocEntry { category: string; categoryTitle: string; order: number; audience: string[]; tags: string[]; headings: { id: string; text: string; depth: number }[] }
+export interface CookbookPage extends CookbookEntry { markdown: string }

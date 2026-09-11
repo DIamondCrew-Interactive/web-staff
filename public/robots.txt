@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /api/cookbook/
+Disallow: /api/internal/
+Disallow: /ai/
